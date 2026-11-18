@@ -27,6 +27,20 @@ No per-seat pricing. Your incident data stays in your own database.</p>
 
 ---
 
+> [!IMPORTANT]
+> **This is OpsKnight's temporary home.** On November 16, 2026, GitHub flagged our original organization, `opsknight-labs`. We weren't told why, and the org is now hidden from the public. We've asked GitHub Support to review it. Until it's restored, all development, releases and images live here, and nothing about the project has changed.
+>
+> **If you pull images from `ghcr.io/opsknight-labs`,** switch to `ghcr.io/opsknightlabs`. Every published tag and digest has been copied across, so `@sha256` pins keep working:
+>
+> ```bash
+> # Compose or Swarm: update the image name in your file or .env
+> sed -i 's#ghcr.io/opsknight-labs#ghcr.io/opsknightlabs#g' docker-compose.yml .env
+> # Helm
+> helm upgrade opsknight ./deploy/kubernetes/helm/opsknight --reuse-values --set image.repository=ghcr.io/opsknightlabs/opsknight
+> ```
+>
+> Please open issues and pull requests here. If OpsKnight is useful to you, a ⭐ on this repo helps people find it while the original is offline. We'll post an update here when the original org is back.
+
 ## 🧭 Product tour
 
 See how OpsKnight connects alert ingestion, incident response, on-call, escalation, ChatOps, customer communication, analytics and post-incident learning.
