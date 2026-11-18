@@ -9,7 +9,7 @@ describe('GitHub & GitLab Integration Event Transformation (Industry Standard)',
         repository: {
           name: 'OpsKnight',
           full_name: 'opsknight-labs/OpsKnight',
-          html_url: 'https://github.com/opsknight-labs/OpsKnight',
+          html_url: 'https://github.com/OpsKnightLabs/OpsKnight',
         },
         workflow_run: {
           id: 12345,
@@ -17,7 +17,7 @@ describe('GitHub & GitLab Integration Event Transformation (Industry Standard)',
           head_branch: 'main',
           status: 'completed',
           conclusion: 'failure',
-          html_url: 'https://github.com/opsknight-labs/OpsKnight/actions/runs/12345',
+          html_url: 'https://github.com/OpsKnightLabs/OpsKnight/actions/runs/12345',
         },
       };
 
@@ -34,7 +34,7 @@ describe('GitHub & GitLab Integration Event Transformation (Industry Standard)',
         repository: {
           name: 'OpsKnight',
           full_name: 'opsknight-labs/OpsKnight',
-          html_url: 'https://github.com/opsknight-labs/OpsKnight',
+          html_url: 'https://github.com/OpsKnightLabs/OpsKnight',
         },
         workflow_run: {
           id: 12346,
@@ -42,7 +42,7 @@ describe('GitHub & GitLab Integration Event Transformation (Industry Standard)',
           head_branch: 'main',
           status: 'completed',
           conclusion: 'timed_out',
-          html_url: 'https://github.com/opsknight-labs/OpsKnight/actions/runs/12346',
+          html_url: 'https://github.com/OpsKnightLabs/OpsKnight/actions/runs/12346',
         },
       };
 
@@ -57,7 +57,7 @@ describe('GitHub & GitLab Integration Event Transformation (Industry Standard)',
         repository: {
           name: 'OpsKnight',
           full_name: 'opsknight-labs/OpsKnight',
-          html_url: 'https://github.com/opsknight-labs/OpsKnight',
+          html_url: 'https://github.com/OpsKnightLabs/OpsKnight',
         },
         workflow_run: {
           id: 12347,
@@ -65,7 +65,7 @@ describe('GitHub & GitLab Integration Event Transformation (Industry Standard)',
           head_branch: 'main',
           status: 'completed',
           conclusion: 'success',
-          html_url: 'https://github.com/opsknight-labs/OpsKnight/actions/runs/12347',
+          html_url: 'https://github.com/OpsKnightLabs/OpsKnight/actions/runs/12347',
         },
       };
 
@@ -82,7 +82,7 @@ describe('GitHub & GitLab Integration Event Transformation (Industry Standard)',
         repository: {
           name: 'OpsKnight',
           full_name: 'opsknight-labs/OpsKnight',
-          html_url: 'https://github.com/opsknight-labs/OpsKnight',
+          html_url: 'https://github.com/OpsKnightLabs/OpsKnight',
         },
         workflow_run: {
           id: 12348,
@@ -90,7 +90,7 @@ describe('GitHub & GitLab Integration Event Transformation (Industry Standard)',
           head_branch: 'feat/test',
           status: 'completed',
           conclusion: 'skipped',
-          html_url: 'https://github.com/opsknight-labs/OpsKnight/actions/runs/12348',
+          html_url: 'https://github.com/OpsKnightLabs/OpsKnight/actions/runs/12348',
         },
       };
 
@@ -106,7 +106,7 @@ describe('GitHub & GitLab Integration Event Transformation (Industry Standard)',
         repository: {
           name: 'OpsKnight',
           full_name: 'opsknight-labs/OpsKnight',
-          html_url: 'https://github.com/opsknight-labs/OpsKnight',
+          html_url: 'https://github.com/OpsKnightLabs/OpsKnight',
         },
         workflow_run: {
           id: 12349,
@@ -114,7 +114,7 @@ describe('GitHub & GitLab Integration Event Transformation (Industry Standard)',
           head_branch: 'main',
           status: 'in_progress',
           conclusion: null,
-          html_url: 'https://github.com/opsknight-labs/OpsKnight/actions/runs/12349',
+          html_url: 'https://github.com/OpsKnightLabs/OpsKnight/actions/runs/12349',
         },
       };
 
@@ -132,14 +132,14 @@ describe('GitHub & GitLab Integration Event Transformation (Industry Standard)',
         repository: {
           name: 'OpsKnight',
           full_name: 'opsknight-labs/OpsKnight',
-          html_url: 'https://github.com/opsknight-labs/OpsKnight',
+          html_url: 'https://github.com/OpsKnightLabs/OpsKnight',
         },
         check_run: {
           id: 991,
           name: 'typecheck',
           status: 'completed',
           conclusion: 'failure',
-          html_url: 'https://github.com/opsknight-labs/OpsKnight/runs/991',
+          html_url: 'https://github.com/OpsKnightLabs/OpsKnight/runs/991',
         },
       };
 
@@ -155,14 +155,14 @@ describe('GitHub & GitLab Integration Event Transformation (Industry Standard)',
         repository: {
           name: 'OpsKnight',
           full_name: 'opsknight-labs/OpsKnight',
-          html_url: 'https://github.com/opsknight-labs/OpsKnight',
+          html_url: 'https://github.com/OpsKnightLabs/OpsKnight',
         },
         check_run: {
           id: 992,
           name: 'typecheck',
           status: 'completed',
           conclusion: 'success',
-          html_url: 'https://github.com/opsknight-labs/OpsKnight/runs/992',
+          html_url: 'https://github.com/OpsKnightLabs/OpsKnight/runs/992',
         },
       };
 
@@ -177,14 +177,14 @@ describe('GitHub & GitLab Integration Event Transformation (Industry Standard)',
         repository: {
           name: 'OpsKnight',
           full_name: 'opsknight-labs/OpsKnight',
-          html_url: 'https://github.com/opsknight-labs/OpsKnight',
+          html_url: 'https://github.com/OpsKnightLabs/OpsKnight',
         },
         check_run: {
           id: 993,
           name: 'DAST (OWASP ZAP)',
           status: 'completed',
           conclusion: 'skipped',
-          html_url: 'https://github.com/opsknight-labs/OpsKnight/runs/993',
+          html_url: 'https://github.com/OpsKnightLabs/OpsKnight/runs/993',
         },
       };
 
@@ -201,7 +201,7 @@ describe('GitHub & GitLab Integration Event Transformation (Industry Standard)',
         repository: {
           name: 'OpsKnight',
           full_name: 'opsknight-labs/OpsKnight',
-          html_url: 'https://github.com/opsknight-labs/OpsKnight',
+          html_url: 'https://github.com/OpsKnightLabs/OpsKnight',
         },
         workflow_job: {
           id: 501,
@@ -217,7 +217,7 @@ describe('GitHub & GitLab Integration Event Transformation (Industry Standard)',
         repository: {
           name: 'OpsKnight',
           full_name: 'opsknight-labs/OpsKnight',
-          html_url: 'https://github.com/opsknight-labs/OpsKnight',
+          html_url: 'https://github.com/OpsKnightLabs/OpsKnight',
         },
         workflow_job: {
           id: 502,
@@ -233,7 +233,7 @@ describe('GitHub & GitLab Integration Event Transformation (Industry Standard)',
         repository: {
           name: 'OpsKnight',
           full_name: 'opsknight-labs/OpsKnight',
-          html_url: 'https://github.com/opsknight-labs/OpsKnight',
+          html_url: 'https://github.com/OpsKnightLabs/OpsKnight',
         },
         workflow_job: {
           id: 503,

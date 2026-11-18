@@ -37,7 +37,7 @@ export const getAgentDistribution = cache(async (): Promise<AgentDistribution | 
     !agentReleaseManifestSchema.shape.version.safeParse(tag.slice(1)).success
   )
     return null;
-  const base = `https://github.com/opsknight-labs/OpsKnight/releases/download/${tag}`;
+  const base = `https://github.com/OpsKnightLabs/OpsKnight/releases/download/${tag}`;
   try {
     const [manifestResponse, installerResponse] = await Promise.all([
       fetch(`${base}/agent-release-manifest.json`, {

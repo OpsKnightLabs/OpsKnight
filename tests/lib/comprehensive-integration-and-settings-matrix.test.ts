@@ -139,7 +139,7 @@ describe('🚀 Comprehensive 28-Integration & Settings Matrix Verification', () 
         repository: {
           name: 'ops-core',
           full_name: 'opsknight-labs/ops-core',
-          html_url: 'https://github.com/opsknight-labs/ops-core',
+          html_url: 'https://github.com/OpsKnightLabs/ops-core',
         },
         workflow_run: {
           id: 1001,
@@ -147,7 +147,7 @@ describe('🚀 Comprehensive 28-Integration & Settings Matrix Verification', () 
           head_branch: 'main',
           status: 'completed' as const,
           conclusion: 'failure' as const,
-          html_url: 'https://github.com/opsknight-labs/ops-core/actions/runs/1001',
+          html_url: 'https://github.com/OpsKnightLabs/ops-core/actions/runs/1001',
         },
       };
 
@@ -156,7 +156,7 @@ describe('🚀 Comprehensive 28-Integration & Settings Matrix Verification', () 
         repository: {
           name: 'ops-core',
           full_name: 'opsknight-labs/ops-core',
-          html_url: 'https://github.com/opsknight-labs/ops-core',
+          html_url: 'https://github.com/OpsKnightLabs/ops-core',
         },
         workflow_run: {
           id: 1002,
@@ -164,7 +164,7 @@ describe('🚀 Comprehensive 28-Integration & Settings Matrix Verification', () 
           head_branch: 'main',
           status: 'completed' as const,
           conclusion: 'success' as const,
-          html_url: 'https://github.com/opsknight-labs/ops-core/actions/runs/1002',
+          html_url: 'https://github.com/OpsKnightLabs/ops-core/actions/runs/1002',
         },
       };
 

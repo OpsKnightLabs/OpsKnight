@@ -25,7 +25,7 @@ const manifest = {
   // Declare the matching server release only. Wider ranges require tested compatibility evidence.
   server: { minimum: stableVersion, maximumExclusive: `${major}.${minor}.${patch + 1}` },
   image: {
-    reference: `ghcr.io/opsknight-labs/opsknight-agent@${digest}`,
+    reference: `ghcr.io/opsknightlabs/opsknight-agent@${digest}`,
     architectures: ['linux/amd64', 'linux/arm64'],
   },
   installer: {

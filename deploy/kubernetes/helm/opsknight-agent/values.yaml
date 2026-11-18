@@ -5,7 +5,7 @@ agent:
   kubernetes:
     enabled: false
   image:
-    repository: ghcr.io/opsknight-labs/opsknight-agent
+    repository: ghcr.io/opsknightlabs/opsknight-agent
     tag: ''
     digest: ''
     pullPolicy: IfNotPresent

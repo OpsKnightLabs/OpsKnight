@@ -11,7 +11,7 @@ Before opening a ticket or posting a discussion, consult our official documentat
 - **Official Documentation**: [https://opsknight.com/docs/latest/](https://opsknight.com/docs/latest/)
 - **Repository Documentation**: [`docs/v2.0.0/README.md`](docs/v2.0.0/README.md)
 - **Deployment & Helm Reference**: [`deploy/README.md`](deploy/README.md)
-- **Interactive Browser Demo**: [Launch OpsKnight Demo](https://codespaces.new/opsknight-labs/OpsKnight?devcontainer_path=.devcontainer%2Fdemo%2Fdevcontainer.json)
+- **Interactive Browser Demo**: [Launch OpsKnight Demo](https://codespaces.new/OpsKnightLabs/OpsKnight?devcontainer_path=.devcontainer%2Fdemo%2Fdevcontainer.json)
 
 ---
 
@@ -20,9 +20,9 @@ Before opening a ticket or posting a discussion, consult our official documentat
 Community support is open to all users and maintained on a best-effort basis:
 
 - **GitHub Discussions**: For architecture discussions, setup questions, configuration tips, and feature ideas.  
-  👉 [Join GitHub Discussions](https://github.com/opsknight-labs/OpsKnight/discussions)
+  👉 [Join GitHub Discussions](https://github.com/OpsKnightLabs/OpsKnight/discussions)
 - **GitHub Issues**: For reporting reproducible bugs, defects, and platform regressions.  
-  👉 [Open a Bug Report](https://github.com/opsknight-labs/OpsKnight/issues/new/choose)
+  👉 [Open a Bug Report](https://github.com/OpsKnightLabs/OpsKnight/issues/new/choose)
 - **Discord Community**: For real-time chat with fellow operators and community members.  
   👉 [Join Discord](https://discord.gg/opsknight)
 
@@ -36,7 +36,7 @@ If you have identified a potential security vulnerability in OpsKnight:
 
 Please follow our [Security Policy](SECURITY.md):
 
-1. **Private GitHub Advisory (Preferred)**: Submit a private report via GitHub's [Private Vulnerability Reporting Form](https://github.com/opsknight-labs/OpsKnight/security/advisories/new).
+1. **Private GitHub Advisory (Preferred)**: Submit a private report via GitHub's [Private Vulnerability Reporting Form](https://github.com/OpsKnightLabs/OpsKnight/security/advisories/new).
 2. **Direct Contact**: Contact [help@opsknight.com](mailto:help@opsknight.com) with the subject line `Private security report`. Request a secure communication channel before transmitting sensitive material or reproduction artifacts.
 
 **Response Targets**:

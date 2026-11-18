@@ -81,7 +81,7 @@ export async function smokeRunbookKind(directory: string, actorId: string, endpo
             resources: ['deployment.yaml', 'policy.yaml', 'service-account.yaml', 'pvc.yaml'],
             images: [
               {
-                name: 'ghcr.io/opsknight-labs/opsknight-agent',
+                name: 'ghcr.io/opsknightlabs/opsknight-agent',
                 newName: 'opsknight-agent',
                 newTag: 'rbe-local',
               },

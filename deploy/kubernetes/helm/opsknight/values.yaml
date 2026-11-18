@@ -9,7 +9,7 @@ runtime:
 replicaCount: 2
 
 image:
-  repository: ghcr.io/opsknight-labs/opsknight
+  repository: ghcr.io/opsknightlabs/opsknight
   pullPolicy: IfNotPresent
   # Defaults to Chart.appVersion (the stable 2.0 runtime); production should use a tested digest.
   tag: ''
@@ -214,7 +214,7 @@ agent:
   kubernetes:
     enabled: false
   image:
-    repository: ghcr.io/opsknight-labs/opsknight-agent
+    repository: ghcr.io/opsknightlabs/opsknight-agent
     tag: ''
     digest: ''
     pullPolicy: IfNotPresent

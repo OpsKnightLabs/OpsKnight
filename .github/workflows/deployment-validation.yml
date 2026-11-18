@@ -47,17 +47,17 @@ jobs:
           OPSKNIGHT_DATABASE_URL='postgresql://user:encoded%40password@db.example.com:6432/opsknight_db?sslmode=require' \
             docker compose -f deploy/compose/docker-compose.yml -f deploy/compose/docker-compose.external-db.yml \
             config > /tmp/opsknight-compose-external-db.yaml
-          OPSKNIGHT_IMAGE='ghcr.io/opsknight-labs/opsknight:ci-test' \
+          OPSKNIGHT_IMAGE='ghcr.io/opsknightlabs/opsknight:ci-test' \
             docker compose -f deploy/compose/docker-compose.yml -f deploy/compose/docker-compose.split.yml \
             config > /tmp/opsknight-compose-split.yaml
-          OPSKNIGHT_IMAGE='ghcr.io/opsknight-labs/opsknight:ci-test' \
+          OPSKNIGHT_IMAGE='ghcr.io/opsknightlabs/opsknight:ci-test' \
           OPSKNIGHT_DATABASE_URL='postgresql://user:encoded%40password@db.example.com:6432/opsknight_db?sslmode=require' \
             docker compose -f deploy/compose/docker-compose.yml -f deploy/compose/docker-compose.split.yml -f deploy/compose/docker-compose.external-db.yml \
             config > /tmp/opsknight-compose-split-external-db.yaml
-          OPSKNIGHT_IMAGE='ghcr.io/opsknight-labs/opsknight:ci-test' \
+          OPSKNIGHT_IMAGE='ghcr.io/opsknightlabs/opsknight:ci-test' \
             docker compose -f deploy/compose/docker-compose.yml -f deploy/compose/docker-compose.split.yml -f deploy/compose/docker-compose.pgbouncer.yml \
             config > /tmp/opsknight-compose-split-pgbouncer.yaml
-          OPSKNIGHT_IMAGE='ghcr.io/opsknight-labs/opsknight:ci-test' \
+          OPSKNIGHT_IMAGE='ghcr.io/opsknightlabs/opsknight:ci-test' \
           OPSKNIGHT_DATABASE_URL='postgresql://user:encoded%40password@db.example.com:6432/opsknight_db?sslmode=require' \
             docker compose -f deploy/compose/docker-compose.yml -f deploy/compose/docker-compose.split.yml -f deploy/compose/docker-compose.pgbouncer.yml -f deploy/compose/docker-compose.external-db.yml \
             config > /tmp/opsknight-compose-split-pgbouncer-external-db.yaml
@@ -205,7 +205,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'ghcr.io/opsknight-labs/opsknight:' /tmp/opsknight-helm.yaml
+          grep -q 'ghcr.io/opsknightlabs/opsknight:' /tmp/opsknight-helm.yaml
           grep -q 'startupProbe:' /tmp/opsknight-helm.yaml
           grep -q 'type: Recreate' /tmp/opsknight-helm.yaml
           test "$(grep -c 'type: Recreate' /tmp/opsknight-helm-split.yaml)" -eq 7
@@ -297,7 +297,7 @@ jobs:
           grep -q 'opsknight-pgbouncer' /tmp/opsknight-compose-split-pgbouncer-external-db.yaml
           grep -q 'port: 6432' /tmp/opsknight-helm-external-db.yaml
           grep -q 'cidr: "10.24.0.0/16"' /tmp/opsknight-helm-external-db.yaml
-          grep -q 'ghcr.io/opsknight-labs/opsknight@sha256:0000000000000000000000000000000000000000000000000000000000000000' /tmp/opsknight-helm-external-secret.yaml
+          grep -q 'ghcr.io/opsknightlabs/opsknight@sha256:0000000000000000000000000000000000000000000000000000000000000000' /tmp/opsknight-helm-external-secret.yaml
           grep -q 'name: opsknight-runtime' /tmp/opsknight-helm-external-secret.yaml
           helm template opsknight deploy/kubernetes/helm/opsknight \
             --namespace opsknight \

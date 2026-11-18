@@ -73,8 +73,8 @@ docker exec "$DB_CONTAINER" pg_restore --exit-on-error --no-owner --no-privilege
 RESTORE_FINISH=$(date +%s)
 echo "Pre-upgrade database restored in $((RESTORE_FINISH - RESTORE_START))s."
 
-echo "   d. Deploying previous verified immutable image (ghcr.io/opsknight-labs/opsknight:2.0.0)..."
-PREV_IMAGE="ghcr.io/opsknight-labs/opsknight:2.0.0"
+echo "   d. Deploying previous verified immutable image (ghcr.io/opsknightlabs/opsknight:2.0.0)..."
+PREV_IMAGE="ghcr.io/opsknightlabs/opsknight:2.0.0"
 
 docker run -d --name "$APP_CONTAINER" --network "$NETWORK_NAME" \
   -p "127.0.0.1:$APP_PORT:3000" \

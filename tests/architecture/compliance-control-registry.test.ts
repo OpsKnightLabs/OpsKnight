@@ -61,7 +61,7 @@ describe('compliance catalogue', () => {
       }
     }
     expect(evidenceSourceUrl('docs/a b.md')).toBe(
-      'https://github.com/opsknight-labs/OpsKnight/blob/main/docs/a%20b.md'
+      'https://github.com/OpsKnightLabs/OpsKnight/blob/main/docs/a%20b.md'
     );
   });
 });
