@@ -87,7 +87,7 @@ describe('Connect guide', () => {
 
   it('pins the doctor download to the running release', () => {
     expect(mcpSetupCommands(endpoint, '2.2.0').doctor).toBe(
-      "curl -fsSLo opsknight-mcp-doctor.cjs https://raw.githubusercontent.com/opsknight-labs/OpsKnight/v2.2.0/scripts/mcp/doctor.cjs && node opsknight-mcp-doctor.cjs 'https://ops.example.com/mcp'"
+      "curl -fsSLo opsknight-mcp-doctor.cjs https://raw.githubusercontent.com/OpsKnightLabs/OpsKnight/v2.2.0/scripts/mcp/doctor.cjs && node opsknight-mcp-doctor.cjs 'https://ops.example.com/mcp'"
     );
   });
 });

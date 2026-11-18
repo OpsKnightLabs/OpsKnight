@@ -7,5 +7,5 @@ export const complianceEvidence = complianceControls.map(control => ({
 }));
 
 export function evidenceSourceUrl(path: string): string {
-  return `https://github.com/opsknight-labs/OpsKnight/blob/main/${path.split('/').map(encodeURIComponent).join('/')}`;
+  return `https://github.com/OpsKnightLabs/OpsKnight/blob/main/${path.split('/').map(encodeURIComponent).join('/')}`;
 }

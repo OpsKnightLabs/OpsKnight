@@ -23,7 +23,7 @@ spec:
             readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 1001
-          image: ghcr.io/opsknight-labs/opsknight:split-runtime-image-required
+          image: ghcr.io/opsknightlabs/opsknight:split-runtime-image-required
           imagePullPolicy: Always
           env:
             - name: DATABASE_URL

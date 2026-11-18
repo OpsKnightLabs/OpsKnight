@@ -67522,7 +67522,7 @@
         "operation"
       ],
       "defaults": [
-        "ghcr.io/opsknight-labs/opsknight:2.1.1",
+        "ghcr.io/opsknightlabs/opsknight:2.1.1",
         "opsknight-local:test"
       ],
       "allowedValues": [],
@@ -67656,7 +67656,7 @@
         "deployment"
       ],
       "defaults": [
-        "ghcr.io/opsknight-labs/opsknight-pgbouncer:1.26.0"
+        "ghcr.io/opsknightlabs/opsknight-pgbouncer:1.26.0"
       ],
       "allowedValues": [],
       "semanticClassification": "PRODUCT_DEPLOYMENT",
@@ -229803,7 +229803,7 @@
             "operation"
           ],
           "defaults": [
-            "ghcr.io/opsknight-labs/opsknight:2.1.1",
+            "ghcr.io/opsknightlabs/opsknight:2.1.1",
             "opsknight-local:test"
           ],
           "allowedValues": [],
@@ -230281,7 +230281,7 @@
             "deployment"
           ],
           "defaults": [
-            "ghcr.io/opsknight-labs/opsknight-pgbouncer:1.26.0"
+            "ghcr.io/opsknightlabs/opsknight-pgbouncer:1.26.0"
           ],
           "allowedValues": [],
           "semanticClassification": "PRODUCT_DEPLOYMENT",

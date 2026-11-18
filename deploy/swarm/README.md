@@ -144,7 +144,7 @@ Docker Swarm lacks Compose's `depends_on: { condition: service_completed_success
 ### Quick Start Deployment:
 ```bash
 # Split runtime requires an explicit immutable image tag or digest:
-export OPSKNIGHT_IMAGE="ghcr.io/opsknight-labs/opsknight@sha256:<tested-manifest-digest>"
+export OPSKNIGHT_IMAGE="ghcr.io/opsknightlabs/opsknight@sha256:<tested-manifest-digest>"
 ./deploy/swarm/scripts/deploy.sh
 
 # Or deploy the integrated runtime stack (defaults to the stable 2.0.0 image):
@@ -157,13 +157,13 @@ SWARM_RUNTIME_MODE=integrated ./deploy/swarm/scripts/deploy.sh
 
 ### A. Core Split Stack (Bundled PostgreSQL)
 ```bash
-export OPSKNIGHT_IMAGE="ghcr.io/opsknight-labs/opsknight@sha256:<tested-manifest-digest>"
+export OPSKNIGHT_IMAGE="ghcr.io/opsknightlabs/opsknight@sha256:<tested-manifest-digest>"
 ./deploy/swarm/scripts/deploy.sh
 ```
 
 ### B. Core Split Stack + High-Availability PgBouncer
 ```bash
-export OPSKNIGHT_IMAGE="ghcr.io/opsknight-labs/opsknight@sha256:<tested-manifest-digest>"
+export OPSKNIGHT_IMAGE="ghcr.io/opsknightlabs/opsknight@sha256:<tested-manifest-digest>"
 PGBOUNCER_ENABLED=true ./deploy/swarm/scripts/deploy.sh
 ```
 
@@ -221,7 +221,7 @@ docker stack ps opsknight --no-trunc
 ```bash
 # Update web tier image with automated rollback on failure
 docker service update \
-  --image ghcr.io/opsknight-labs/opsknight:2.0.0 \
+  --image ghcr.io/opsknightlabs/opsknight:2.0.0 \
   --update-parallelism 1 \
   --update-delay 10s \
   --update-failure-action rollback \

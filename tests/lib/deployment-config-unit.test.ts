@@ -30,7 +30,7 @@ describe('deployment configuration invariants', () => {
     expect(chart).toContain(`version: ${pkg.version}`);
     expect(chart).toMatch(new RegExp(`appVersion: '${pkg.version}(?:-hotfix)?'`));
     expect(rawDeployment).toMatch(
-      new RegExp(`ghcr.io/opsknight-labs/opsknight:${pkg.version}(?:-hotfix)?`)
+      new RegExp(`ghcr.io/opsknightlabs/opsknight:${pkg.version}(?:-hotfix)?`)
     );
   });
 
@@ -797,7 +797,7 @@ describe('deployment configuration invariants', () => {
       'docs/v1.3/deployment/helm.md',
     ];
     const content = files.map(read).join('\n');
-    expect(content).not.toMatch(/ghcr\.io\/opsknight-labs\/OpsKnight/);
+    expect(content).not.toMatch(/ghcr\.io\/opsknightlabs\/OpsKnight/);
     expect(content).not.toMatch(/(?:^|\s)opsknight\/opsknight:/);
   });
 
@@ -893,10 +893,10 @@ describe('deployment configuration invariants', () => {
       'deploy/kubernetes/kustomize/profiles/split-pgbouncer/web-database-patch.yaml'
     );
     expect(webPatch).toContain(
-      'image: ghcr.io/opsknight-labs/opsknight:split-runtime-image-required'
+      'image: ghcr.io/opsknightlabs/opsknight:split-runtime-image-required'
     );
     expect(splitDeployments).toContain(
-      'image: ghcr.io/opsknight-labs/opsknight:split-runtime-image-required'
+      'image: ghcr.io/opsknightlabs/opsknight:split-runtime-image-required'
     );
     expect(webPatch).toContain('runAsUser: 1001');
     expect(webPatch).toContain('readOnlyRootFilesystem: true');

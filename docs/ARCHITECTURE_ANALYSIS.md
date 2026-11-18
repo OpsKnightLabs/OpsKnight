@@ -2,7 +2,7 @@
 
 **Document Version:** 1.0.0  
 **Target Release Baseline:** v1.1.0  
-**Repository:** [github.com/opsknight-labs/OpsKnight](https://github.com/opsknight-labs/OpsKnight)  
+**Repository:** [github.com/OpsKnightLabs/OpsKnight](https://github.com/OpsKnightLabs/OpsKnight)  
 **Author:** OpsKnight Engineering Team  
 **Date:** August 2026
 

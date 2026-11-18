@@ -104,7 +104,7 @@ jobs:
       - name: Checkout website renderer
         uses: actions/checkout@v7
         with:
-          repository: opsknight-labs/OpsKnight-website
+          repository: OpsKnightLabs/OpsKnight-website
           path: opsknight-website
       - name: Build the rendered documentation site from this revision
         run: |

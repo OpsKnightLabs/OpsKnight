@@ -25,7 +25,7 @@ export const agentReleaseManifestSchema = z
       .object({
         reference: z
           .string()
-          .regex(/^ghcr\.io\/opsknight-labs\/opsknight-agent@sha256:[a-f0-9]{64}$/),
+          .regex(/^ghcr\.io\/opsknightlabs\/opsknight-agent@sha256:[a-f0-9]{64}$/),
         architectures: z.array(z.enum(['linux/amd64', 'linux/arm64'])).min(1),
       })
       .strict(),

@@ -143,7 +143,7 @@ function runSwarmSecretPrep(extraEnv: Record<string, string>) {
     ...process.env,
     NODE_ENV: 'production',
     OPSKNIGHT_DEPLOY_PREPARE_SECRETS_ONLY: 'true',
-    OPSKNIGHT_IMAGE: 'ghcr.io/opsknight-labs/opsknight:2.0.0',
+    OPSKNIGHT_IMAGE: 'ghcr.io/opsknightlabs/opsknight:2.0.0',
     ENVIRONMENT: 'production',
     POSTGRES_PASSWORD: postgresPassword,
     NEXTAUTH_SECRET: nextAuthSecret,

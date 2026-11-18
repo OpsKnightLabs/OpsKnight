@@ -26,7 +26,7 @@ export default function () {
     repository: {
       name: 'OpsKnight',
       full_name: 'opsknight-labs/OpsKnight',
-      html_url: 'https://github.com/opsknight-labs/OpsKnight',
+      html_url: 'https://github.com/OpsKnightLabs/OpsKnight',
     },
     workflow_run: {
       id: 539,
@@ -34,7 +34,7 @@ export default function () {
       head_branch: 'main',
       status: 'completed',
       conclusion: 'failure',
-      html_url: 'https://github.com/opsknight-labs/OpsKnight/actions/runs/539',
+      html_url: 'https://github.com/OpsKnightLabs/OpsKnight/actions/runs/539',
     },
   });
   const response = http.post(

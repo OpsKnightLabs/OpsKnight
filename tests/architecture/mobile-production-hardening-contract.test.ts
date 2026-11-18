@@ -44,7 +44,7 @@ describe('mobile production hardening contract', () => {
     expect(rootLayout).not.toContain('<LegalSourceNotice />');
     // Component itself must retain required AGPL attributes
     expect(legalSourceNotice).toContain('NEXT_PUBLIC_SOURCE_CODE_URL');
-    expect(legalSourceNotice).toContain('https://github.com/opsknight-labs/OpsKnight');
+    expect(legalSourceNotice).toContain('https://github.com/OpsKnightLabs/OpsKnight');
     expect(legalSourceNotice).toContain('AGPL-3.0-only');
     expect(legalSourceNotice).toContain('Source code');
   });

@@ -15,13 +15,13 @@
   ],
   "author": "Dushyant Rahangdale",
   "license": "AGPL-3.0-only",
-  "homepage": "https://github.com/opsknight-labs/opsknight",
+  "homepage": "https://github.com/OpsKnightLabs/opsknight",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/opsknight-labs/opsknight.git"
+    "url": "git+https://github.com/OpsKnightLabs/opsknight.git"
   },
   "bugs": {
-    "url": "https://github.com/opsknight-labs/opsknight/issues"
+    "url": "https://github.com/OpsKnightLabs/opsknight/issues"
   },
   "private": false,
   "scripts": {

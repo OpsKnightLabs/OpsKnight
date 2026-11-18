@@ -50,8 +50,8 @@ For example, pin the split-compatible image in the overlay:
 
 ```yaml
 images:
-  - name: ghcr.io/opsknight-labs/opsknight
-    newName: ghcr.io/opsknight-labs/opsknight
+  - name: ghcr.io/opsknightlabs/opsknight
+    newName: ghcr.io/opsknightlabs/opsknight
     digest: sha256:<tested-split-runtime-manifest-digest>
 ```
 

@@ -260,7 +260,7 @@ describe('F4: MCP docs are findable', () => {
       expect(site.endsWith('/'), site).toBe(true);
       expect(site).not.toContain('.md');
     }
-    expect(MCP_DOCS_REPOSITORY).toBe('https://github.com/opsknight-labs/OpsKnight/blob/main');
+    expect(MCP_DOCS_REPOSITORY).toBe('https://github.com/OpsKnightLabs/OpsKnight/blob/main');
     for (const [key, link] of Object.entries(MCP_DOCS_LINKS))
       expect(
         Object.values(MCP_DOCS_PATHS).some(

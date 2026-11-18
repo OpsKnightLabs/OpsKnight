@@ -77,7 +77,7 @@ ENV DATABASE_URL=$DATABASE_URL
 
 # Embed the source location that corresponds to this build. Official CI passes an
 # immutable commit URL. Downstream modified builds should provide their own URL.
-ARG SOURCE_CODE_URL="https://github.com/opsknight-labs/OpsKnight"
+ARG SOURCE_CODE_URL="https://github.com/OpsKnightLabs/OpsKnight"
 ENV NEXT_PUBLIC_SOURCE_CODE_URL=$SOURCE_CODE_URL
 
 # Build Next.js application with production optimizations
@@ -103,7 +103,7 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NEXT_RUNTIME=nodejs
 
-ARG SOURCE_CODE_URL="https://github.com/opsknight-labs/OpsKnight"
+ARG SOURCE_CODE_URL="https://github.com/OpsKnightLabs/OpsKnight"
 ARG BUILD_REVISION=unknown
 ENV NEXT_PUBLIC_SOURCE_CODE_URL=$SOURCE_CODE_URL
 
@@ -159,6 +159,6 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 ENTRYPOINT ["./docker-entrypoint.sh"]
 
 # Link image to repository and declare the license of images built from this line.
-LABEL org.opencontainers.image.source="https://github.com/opsknight-labs/OpsKnight" \
+LABEL org.opencontainers.image.source="https://github.com/OpsKnightLabs/OpsKnight" \
       org.opencontainers.image.licenses="AGPL-3.0-only" \
       org.opencontainers.image.revision=$BUILD_REVISION
