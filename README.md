@@ -1,3 +1,17 @@
+> [!IMPORTANT]
+> **This is OpsKnight's temporary home.** On November 16, 2026, GitHub flagged our original organization, `opsknight-labs`, and hid it from the public. We haven't been told why. OpsKnight is an open-source alternative to established SaaS incident-management tools, and we're improving it fast. We can't rule out that the flag came from reports filed by parties who would rather it didn't exist. We've asked GitHub Support to review it. Until then, all development, releases and images live here, and nothing about the project has changed.
+>
+> **Images are moving off a single provider.** If you pull from `ghcr.io/opsknight-labs`, switch to `ghcr.io/opsknightlabs` now. Every published tag and digest has been copied, so `@sha256` pins keep working. As a precaution, we're also publishing images to Docker Hub, so your deployments never depend on one company's decision again. We'll announce the Docker Hub path here.
+>
+> ```bash
+> # Compose or Swarm: update the image name in your file or .env
+> sed -i 's#ghcr.io/opsknight-labs#ghcr.io/opsknightlabs#g' docker-compose.yml .env
+> # Helm
+> helm upgrade opsknight ./deploy/kubernetes/helm/opsknight --reuse-values --set image.repository=ghcr.io/opsknightlabs/opsknight
+> ```
+>
+> Please open issues and pull requests here. If OpsKnight is useful to you, a ⭐ on this repo helps others find it while the original is offline.
+
 <div align="center">
 
 <a href="https://opsknight.com/">
@@ -26,20 +40,6 @@ No per-seat pricing. Your incident data stays in your own database.</p>
 </div>
 
 ---
-
-> [!IMPORTANT]
-> **This is OpsKnight's temporary home.** On November 16, 2026, GitHub flagged our original organization, `opsknight-labs`. We weren't told why, and the org is now hidden from the public. We've asked GitHub Support to review it. Until it's restored, all development, releases and images live here, and nothing about the project has changed.
->
-> **If you pull images from `ghcr.io/opsknight-labs`,** switch to `ghcr.io/opsknightlabs`. Every published tag and digest has been copied across, so `@sha256` pins keep working:
->
-> ```bash
-> # Compose or Swarm: update the image name in your file or .env
-> sed -i 's#ghcr.io/opsknight-labs#ghcr.io/opsknightlabs#g' docker-compose.yml .env
-> # Helm
-> helm upgrade opsknight ./deploy/kubernetes/helm/opsknight --reuse-values --set image.repository=ghcr.io/opsknightlabs/opsknight
-> ```
->
-> Please open issues and pull requests here. If OpsKnight is useful to you, a ⭐ on this repo helps people find it while the original is offline. We'll post an update here when the original org is back.
 
 ## 🧭 Product tour
 
