@@ -11,7 +11,7 @@ reader:
   task: Configure and validate Slack ChatOps from the Slack app through production incident workflows.
 verification:
   level: source
-  verified_at: 2026-10-02
+  verified_at: 2026-11-19
   evidence:
     - src/lib/slack/app-manifest.ts
     - src/components/settings/GuidedSlackSetup.tsx
@@ -76,13 +76,15 @@ independently.
 ## Review Slack permissions
 
 Core ChatOps requires `chat:write`, `channels:read`, `channels:join`,
-`channels:manage`, `channels:history`, `reactions:read`, `users:read`, and
-`users:read.email`. Private coverage additionally uses `groups:read`,
+`channels:manage`, `channels:history`, `reactions:read`, `users:read`,
+`users:read.email`, and `commands`. Private coverage additionally uses `groups:read`,
 `groups:write`, `groups:history`, `im:read`, and `mpim:read`.
 
 `channels:manage` enables public war-room lifecycle; `users:read.email`
 supports responder matching; and `reactions:read` with channel history supports
-pin-to-note behavior. Grant optional scopes only when approved. Reinstall after
+pin-to-note behavior; `commands` lets Slack deliver `/incident`. Workspaces
+connected before `commands` was requested show it as missing and must
+reconnect. Grant optional scopes only when approved. Reinstall after
 changing scopes, events, commands, or request URLs.
 
 ## Configure Slack OAuth

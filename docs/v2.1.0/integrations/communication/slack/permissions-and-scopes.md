@@ -7,15 +7,16 @@ product_area: chatops
 audience: [administrator, operator]
 verification:
   level: source
-  verified_at: 2026-09-28
+  verified_at: 2026-11-19
   evidence: [src/lib/slack/app-manifest.ts]
 ---
 
 # Slack permissions and scopes
 
 Core features require `chat:write`, `channels:read`, `channels:join`,
-`channels:manage`, `channels:history`, `reactions:read`, `users:read`, and
-`users:read.email`.
+`channels:manage`, `channels:history`, `reactions:read`, `users:read`,
+`users:read.email`, and `commands`. Without `commands`, Slack rejects the app
+manifest and `/incident` is not delivered to OpsKnight.
 
 Private-channel and direct-message coverage is optional and uses `groups:read`,
 `groups:write`, `groups:history`, `im:read`, and `mpim:read`. OpsKnight also
