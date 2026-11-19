@@ -33,3 +33,8 @@ Pages for features unchanged since 2.1.0 remain in the [2.1.0 documentation](../
 ## Identity
 
 - [Single sign-on guides](./guides/identity/README.md) and [sign-in troubleshooting](./troubleshooting/login/README.md)
+
+## Integrations
+
+- [Slack permissions and scopes](./integrations/communication/slack/permissions-and-scopes.md):
+  `commands` is now required for `/incident`; workspaces connected on 2.1 must reconnect
