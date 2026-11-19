@@ -1,0 +1,48 @@
+name: Backup sync
+
+# Keeps a second GitHub org as a live replica: branches, tags, LFS, releases and images.
+# Inactive until the repo variable BACKUP_REPO is set. Setup, in the PRIMARY repo:
+#   vars:    BACKUP_REPO=OpsKnightLabs/OpsKnight  BACKUP_NAMESPACE=opsknightlabs  IMAGE_NAMESPACE=<primary ghcr namespace>
+#   secret:  BACKUP_TOKEN = classic PAT (repo, workflow, write:packages) of an owner of both orgs
+# In the BACKUP repo: disable Actions (mirrored pushes would otherwise run every workflow there),
+# and set the main ruleset's admin bypass to "Always" so the mirror can push to main.
+on:
+  push:
+    branches: ['**']
+    tags: ['**']
+  delete:
+  release:
+    types: [published]
+  schedule:
+    - cron: '41 3 * * *' # daily catch-up for images built after the push
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backup-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: vars.BACKUP_REPO != '' && vars.BACKUP_REPO != github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          lfs: true
+      - uses: docker/setup-buildx-action@v4
+      - name: Sync to backup
+        env:
+          SOURCE_REPO: ${{ github.repository }}
+          BACKUP_REPO: ${{ vars.BACKUP_REPO }}
+          SOURCE_NAMESPACE: ${{ vars.IMAGE_NAMESPACE }}
+          BACKUP_NAMESPACE: ${{ vars.BACKUP_NAMESPACE }}
+          SOURCE_TOKEN: ${{ github.token }}
+          BACKUP_TOKEN: ${{ secrets.BACKUP_TOKEN }}
+          # Pushes only mirror git; releases and images ride on release/schedule/manual runs.
+          SYNC_PARTS: ${{ (github.event_name == 'push' || github.event_name == 'delete') && 'git' || 'git releases images' }}
+        run: scripts/ci/sync-backup.sh
