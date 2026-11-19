@@ -33,3 +33,8 @@ Pages for features unchanged since 2.1.0 remain in the [2.1.0 documentation](../
 ## Identity
 
 - [Single sign-on guides](./guides/identity/README.md) and [sign-in troubleshooting](./troubleshooting/login/README.md)
+
+## Deployment
+
+- [Helm pre-upgrade runtime gate](./operate/deploy/helm/upgrade-gate.md): values-only upgrades no
+  longer require stopping every Deployment
