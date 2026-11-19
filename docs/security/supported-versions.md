@@ -7,7 +7,7 @@ The project provides security updates for the **latest major version**. OpsKnigh
 - Older minors or patches in the supported major: upgrade is the normal remediation. No separate per-minor backport promise is established.
 - Prereleases and source snapshots: development artifacts, without a stable-release support commitment.
 
-Use the [published releases](https://github.com/opsknight-labs/OpsKnight/releases) and each security advisory to identify the actual latest release and affected/fixed versions. A branch name, container `latest` tag or package version alone is not evidence that a release has shipped.
+Use the [published releases](https://github.com/OpsKnightLabs/OpsKnight/releases) and each security advisory to identify the actual latest release and affected/fixed versions. A branch name, container `latest` tag or package version alone is not evidence that a release has shipped.
 
 ## Release and EOL decisions
 

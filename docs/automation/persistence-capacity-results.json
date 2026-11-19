@@ -7068,9 +7068,9 @@
       },
       "runtimeEvidence": "artifacts/load-certification/automation/kind-helm-split-audit28-review-boundaries-interleaved-20rps/kind-runtime.json",
       "ciEvidence": {
-        "tests": "https://github.com/opsknight-labs/OpsKnight/actions/runs/38151226274",
-        "automation": "https://github.com/opsknight-labs/OpsKnight/actions/runs/38151212214",
-        "runbooks": "https://github.com/opsknight-labs/OpsKnight/actions/runs/38151212398"
+        "tests": "https://github.com/OpsKnightLabs/OpsKnight/actions/runs/38151226274",
+        "automation": "https://github.com/OpsKnightLabs/OpsKnight/actions/runs/38151212214",
+        "runbooks": "https://github.com/OpsKnightLabs/OpsKnight/actions/runs/38151212398"
       },
       "profiles": [
         {
@@ -8033,9 +8033,9 @@
       },
       "runtimeEvidence": "artifacts/load-certification/automation/kind-helm-split-audit29-persistence-projection-interleaved-20rps/kind-runtime.json",
       "ciEvidence": {
-        "tests": "https://github.com/opsknight-labs/OpsKnight/actions/runs/38155138768",
-        "automation": "https://github.com/opsknight-labs/OpsKnight/actions/runs/38155121829",
-        "runbooks": "https://github.com/opsknight-labs/OpsKnight/actions/runs/38155121947"
+        "tests": "https://github.com/OpsKnightLabs/OpsKnight/actions/runs/38155138768",
+        "automation": "https://github.com/OpsKnightLabs/OpsKnight/actions/runs/38155121829",
+        "runbooks": "https://github.com/OpsKnightLabs/OpsKnight/actions/runs/38155121947"
       },
       "profiles": [
         {
@@ -8999,9 +8999,9 @@
       },
       "runtimeEvidence": "artifacts/load-certification/automation/kind-helm-split-audit30-incident-row-fencing-interleaved-20rps/kind-runtime.json",
       "ciEvidence": {
-        "tests": "https://github.com/opsknight-labs/OpsKnight/actions/runs/38203997058",
-        "automation": "https://github.com/opsknight-labs/OpsKnight/actions/runs/38203961972",
-        "runbooks": "https://github.com/opsknight-labs/OpsKnight/actions/runs/38203962156"
+        "tests": "https://github.com/OpsKnightLabs/OpsKnight/actions/runs/38203997058",
+        "automation": "https://github.com/OpsKnightLabs/OpsKnight/actions/runs/38203961972",
+        "runbooks": "https://github.com/OpsKnightLabs/OpsKnight/actions/runs/38203962156"
       },
       "profiles": [
         {

@@ -798,7 +798,7 @@ export default function Sidebar({
                 opsknight.com
               </a>
               <a
-                href={`https://github.com/opsknight-labs/OpsKnight/releases/tag/${APP_VERSION}`}
+                href={`https://github.com/OpsKnightLabs/OpsKnight/releases/tag/${APP_VERSION}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-mono hover:text-slate-300 transition-colors"

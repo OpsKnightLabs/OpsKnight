@@ -2,7 +2,7 @@
 // Uses synthetic fixtures, no cloud credentials, no network, and no host mounts.
 import { execFileSync } from 'node:child_process';
 
-const image = process.argv[2] ?? 'ghcr.io/opsknight-labs/opsknight:2.1.2';
+const image = process.argv[2] ?? 'ghcr.io/opsknightlabs/opsknight:2.1.2';
 const inspected = JSON.parse(
   execFileSync('docker', ['image', 'inspect', image, '--format', '{{json .}}'], {
     encoding: 'utf8',

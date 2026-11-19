@@ -623,7 +623,7 @@ export default function HelpCenter({ mcpEntry }: { mcpEntry?: React.ReactNode })
                 help.
               </p>
               <a
-                href="https://github.com/opsknight-labs/OpsKnight/discussions"
+                href="https://github.com/OpsKnightLabs/OpsKnight/discussions"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-medium pt-1"
@@ -807,7 +807,7 @@ export default function HelpCenter({ mcpEntry }: { mcpEntry?: React.ReactNode })
               className="gap-2 text-xs h-9 shadow-2xs cursor-pointer"
             >
               <a
-                href="https://github.com/opsknight-labs/OpsKnight/discussions"
+                href="https://github.com/OpsKnightLabs/OpsKnight/discussions"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -817,7 +817,7 @@ export default function HelpCenter({ mcpEntry }: { mcpEntry?: React.ReactNode })
             </Button>
             <Button size="sm" asChild className="gap-2 text-xs h-9 shadow-2xs cursor-pointer">
               <a
-                href="https://github.com/opsknight-labs/OpsKnight/issues"
+                href="https://github.com/OpsKnightLabs/OpsKnight/issues"
                 target="_blank"
                 rel="noopener noreferrer"
               >

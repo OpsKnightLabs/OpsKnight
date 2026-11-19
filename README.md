@@ -1,3 +1,17 @@
+> [!IMPORTANT]
+> **This is OpsKnight's temporary home.** On November 16, 2026, GitHub flagged our original organization, `opsknight-labs`, and hid it from the public. We haven't been told why. OpsKnight is an open-source alternative to established SaaS incident-management tools, and we're improving it fast. We can't rule out that the flag came from reports filed by parties who would rather it didn't exist. We've asked GitHub Support to review it. Until then, all development, releases and images live here, and nothing about the project has changed.
+>
+> **Images are moving off a single provider.** If you pull from `ghcr.io/opsknight-labs`, switch to `ghcr.io/opsknightlabs` now. Every published tag and digest has been copied, so `@sha256` pins keep working. As a precaution, we're also publishing images to Docker Hub, so your deployments never depend on one company's decision again. We'll announce the Docker Hub path here.
+>
+> ```bash
+> # Compose or Swarm: update the image name in your file or .env
+> sed -i 's#ghcr.io/opsknight-labs#ghcr.io/opsknightlabs#g' docker-compose.yml .env
+> # Helm
+> helm upgrade opsknight ./deploy/kubernetes/helm/opsknight --reuse-values --set image.repository=ghcr.io/opsknightlabs/opsknight
+> ```
+>
+> Please open issues and pull requests here. If OpsKnight is useful to you, a ⭐ on this repo helps others find it while the original is offline.
+
 <div align="center">
 
 <a href="https://opsknight.com/">
@@ -10,14 +24,14 @@
 No per-seat pricing. Your incident data stays in your own database.</p>
 
 <p>
-  <a href="https://github.com/opsknight-labs/OpsKnight/releases/tag/v2.0.0"><img src="https://img.shields.io/badge/release-v2.0.0-e11d48?style=for-the-badge" alt="Release v2.0.0"></a>
+  <a href="https://github.com/OpsKnightLabs/OpsKnight/releases/tag/v2.0.0"><img src="https://img.shields.io/badge/release-v2.0.0-e11d48?style=for-the-badge" alt="Release v2.0.0"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-AGPL--3.0--only-111827?style=for-the-badge" alt="License AGPL-3.0-only"></a>
-  <a href="https://github.com/opsknight-labs/OpsKnight/pkgs/container/opsknight"><img src="https://img.shields.io/badge/ghcr.io-amd64%20%7C%20arm64-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Multi-architecture container on GHCR"></a>
+  <a href="https://github.com/OpsKnightLabs/OpsKnight/pkgs/container/opsknight"><img src="https://img.shields.io/badge/ghcr.io-amd64%20%7C%20arm64-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Multi-architecture container on GHCR"></a>
   <a href="https://opsknight.com/docs/v2.0.0/"><img src="https://img.shields.io/badge/docs-opsknight.com-2563eb?style=for-the-badge&logo=readthedocs&logoColor=white" alt="Documentation"></a>
 </p>
 <p>
-  <a href="https://github.com/opsknight-labs/OpsKnight/actions/workflows/tests.yml"><img src="https://github.com/opsknight-labs/OpsKnight/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
-  <a href="https://github.com/opsknight-labs/OpsKnight/actions/workflows/security.yml"><img src="https://github.com/opsknight-labs/OpsKnight/actions/workflows/security.yml/badge.svg" alt="Security"></a>
+  <a href="https://github.com/OpsKnightLabs/OpsKnight/actions/workflows/tests.yml"><img src="https://github.com/OpsKnightLabs/OpsKnight/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
+  <a href="https://github.com/OpsKnightLabs/OpsKnight/actions/workflows/security.yml"><img src="https://github.com/OpsKnightLabs/OpsKnight/actions/workflows/security.yml/badge.svg" alt="Security"></a>
   <a href="https://github.com/sponsors/dushyant-rahangdale"><img src="https://img.shields.io/badge/sponsor-%E2%9D%A4-ea4aaa?style=flat&logo=githubsponsors&logoColor=white" alt="Sponsor"></a>
 </p>
 
@@ -101,11 +115,11 @@ Actionable reliability metrics including MTTA, MTTR, SLA compliance tracking, co
 Prerequisites: Git, Docker with Docker Compose, and `openssl`.
 
 ```bash
-git clone https://github.com/opsknight-labs/OpsKnight.git
+git clone https://github.com/OpsKnightLabs/OpsKnight.git
 cd OpsKnight
 
 cat << 'EOF' > .env
-OPSKNIGHT_IMAGE=ghcr.io/opsknight-labs/opsknight:2.0.0
+OPSKNIGHT_IMAGE=ghcr.io/opsknightlabs/opsknight:2.0.0
 POSTGRES_USER=opsknight
 POSTGRES_DB=opsknight_db
 POSTGRES_PORT=5432
@@ -292,7 +306,7 @@ OpsKnight is an independent project and is not affiliated with PagerDuty, Opsgen
 
 Encrypted provider credentials with key rotation, independent session and API-key signing secrets, fail-closed inbound verification, role-based authorization, session revocation, OIDC, SCIM, audit evidence and CI security scanning. Compliance tooling helps operators implement and evidence controls; it does not itself confer certification.
 
-[Security policy](SECURITY.md) &nbsp;·&nbsp; [Production hardening](https://opsknight.com/docs/v2.0.0/operate/security/hardening/) &nbsp;·&nbsp; [Report a vulnerability privately](https://github.com/opsknight-labs/OpsKnight/security/advisories/new)
+[Security policy](SECURITY.md) &nbsp;·&nbsp; [Production hardening](https://opsknight.com/docs/v2.0.0/operate/security/hardening/) &nbsp;·&nbsp; [Report a vulnerability privately](https://github.com/OpsKnightLabs/OpsKnight/security/advisories/new)
 
 ---
 
@@ -311,8 +325,8 @@ The versioned 2.0 documentation is the source of truth for product behavior, con
 Bug reports, focused feature requests, documentation fixes and code contributions are welcome.
 
 <p align="center">
-  <a href="https://github.com/opsknight-labs/OpsKnight/discussions"><img src="https://img.shields.io/badge/GitHub-Discussions-24292e?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Discussions"></a>
-  <a href="https://github.com/opsknight-labs/OpsKnight/issues"><img src="https://img.shields.io/badge/Issues-Report_a_bug-d73a49?style=for-the-badge&logo=github&logoColor=white" alt="Report a bug"></a>
+  <a href="https://github.com/OpsKnightLabs/OpsKnight/discussions"><img src="https://img.shields.io/badge/GitHub-Discussions-24292e?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Discussions"></a>
+  <a href="https://github.com/OpsKnightLabs/OpsKnight/issues"><img src="https://img.shields.io/badge/Issues-Report_a_bug-d73a49?style=for-the-badge&logo=github&logoColor=white" alt="Report a bug"></a>
   <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-Welcome-22c55e?style=for-the-badge&logo=git&logoColor=white" alt="Contributing guide"></a>
   <a href="ROADMAP.md"><img src="https://img.shields.io/badge/Roadmap-View-6366f1?style=for-the-badge&logo=target&logoColor=white" alt="Roadmap"></a>
 </p>

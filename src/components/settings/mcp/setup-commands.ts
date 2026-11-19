@@ -11,7 +11,7 @@ function base64(text: string) {
 }
 
 /** Where each release's doctor script is published; the script is pinned to the running version. */
-const DOCTOR_RAW = 'https://raw.githubusercontent.com/opsknight-labs/OpsKnight';
+const DOCTOR_RAW = 'https://raw.githubusercontent.com/OpsKnightLabs/OpsKnight';
 
 /**
  * Setup commands and config for each assistant, with the endpoint filled in. `version` is the

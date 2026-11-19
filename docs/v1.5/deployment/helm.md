@@ -43,7 +43,7 @@ Example using managed PostgreSQL:
 
 ```yaml
 image:
-  repository: ghcr.io/opsknight-labs/opsknight
+  repository: ghcr.io/opsknightlabs/opsknight
   tag: '1.4.0' # pin the release you tested
   # digest: 'sha256:...' # optional; takes precedence over tag
 

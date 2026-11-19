@@ -18,7 +18,7 @@ The repository Compose file runs the published OpsKnight image and PostgreSQL 15
 ## Configure production values
 
 ```bash
-git clone https://github.com/opsknight-labs/OpsKnight.git
+git clone https://github.com/OpsKnightLabs/OpsKnight.git
 cd OpsKnight
 cp env.example .env
 openssl rand -base64 32
@@ -36,7 +36,7 @@ NEXT_PUBLIC_APP_URL=https://ops.example.com
 NEXTAUTH_SECRET=REPLACE_WITH_BASE64_OUTPUT
 ENCRYPTION_KEY=REPLACE_WITH_64_HEX_CHARACTERS
 APP_PORT=3000
-OPSKNIGHT_IMAGE=ghcr.io/opsknight-labs/opsknight:1.4.0
+OPSKNIGHT_IMAGE=ghcr.io/opsknightlabs/opsknight:1.4.0
 ```
 
 To let Prometheus monitor OpsKnight, also provide a dedicated high-entropy
@@ -80,7 +80,7 @@ Runs dedicated, decoupled containers for each role:
 
 Only `opsknight-web` publishes a host port (`3000`); background workers and the scheduler expose no public ports and run as non-root with dropped capabilities.
 ```bash
-OPSKNIGHT_IMAGE="ghcr.io/opsknight-labs/opsknight:2.0.0" \
+OPSKNIGHT_IMAGE="ghcr.io/opsknightlabs/opsknight:2.0.0" \
   docker compose -f deploy/compose/docker-compose.yml -f deploy/compose/docker-compose.split.yml up -d
 ```
 
@@ -94,11 +94,11 @@ Adds a dedicated PgBouncer connection pooler container (`opsknight-pgbouncer`) o
 - External PostgreSQL connections support encrypted TLS verification (`PGBOUNCER_SERVER_TLS_SSLMODE=verify-full`). A standard root CA bundle is mounted into `/etc/ssl/certs/ca-certificates.crt`, and custom enterprise CA bundles can be mounted with `deploy/compose/docker-compose.pgbouncer-ca.yml` via `PGBOUNCER_TLS_CA_CERT=/etc/ssl/certs/custom-ca.crt` (use an **absolute host path**; relative volume paths in Docker Compose are resolved relative to `deploy/compose/`, not the caller's working directory).
 ```bash
 # With bundled PostgreSQL:
-OPSKNIGHT_IMAGE="ghcr.io/opsknight-labs/opsknight:2.0.0" \
+OPSKNIGHT_IMAGE="ghcr.io/opsknightlabs/opsknight:2.0.0" \
   docker compose -f deploy/compose/docker-compose.yml -f deploy/compose/docker-compose.split.yml -f deploy/compose/docker-compose.pgbouncer.yml up -d
 
 # With external managed PostgreSQL + custom enterprise CA:
-OPSKNIGHT_IMAGE="ghcr.io/opsknight-labs/opsknight:2.0.0" \
+OPSKNIGHT_IMAGE="ghcr.io/opsknightlabs/opsknight:2.0.0" \
 OPSKNIGHT_DATABASE_URL="postgresql://enterprise_user:enterprise_password@db.example.com:5432/opsknight_db?sslmode=verify-full&sslrootcert=/etc/ssl/certs/custom-ca.crt" \
 PGBOUNCER_DB_HOST="db.example.com" \
 PGBOUNCER_DB_PORT="5432" \

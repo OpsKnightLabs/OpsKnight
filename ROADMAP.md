@@ -30,4 +30,4 @@ No delivery date is committed. Items will be scoped and scheduled before they be
 - [ ] Alert correlation and assisted incident learning
 - [ ] Configurable workflow triggers and response automation
 
-Have a suggestion? [Open a feature request](https://github.com/opsknight-labs/OpsKnight/issues/new?template=feature_request.yml).
+Have a suggestion? [Open a feature request](https://github.com/OpsKnightLabs/OpsKnight/issues/new?template=feature_request.yml).

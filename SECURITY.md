@@ -4,7 +4,7 @@
 
 Do not open a public issue containing an undisclosed vulnerability, exploit, customer data or credentials.
 
-Use GitHub's [private vulnerability reporting form](https://github.com/opsknight-labs/OpsKnight/security/advisories/new) when available. If the repository does not offer that form, contact [help@opsknight.com](mailto:help@opsknight.com), the project's published contact, with the subject `Private security report`. Ask for a secure exchange channel before sending sensitive material. This address is a fallback contact, not a dedicated 24/7 security desk.
+Use GitHub's [private vulnerability reporting form](https://github.com/OpsKnightLabs/OpsKnight/security/advisories/new) when available. If the repository does not offer that form, contact [help@opsknight.com](mailto:help@opsknight.com), the project's published contact, with the subject `Private security report`. Ask for a secure exchange channel before sending sensitive material. This address is a fallback contact, not a dedicated 24/7 security desk.
 
 Include:
 
@@ -30,7 +30,7 @@ Security updates target the latest major version. See [supported versions and EO
 
 ## Deployment checklist
 
-- Use a supported release and track [security advisories](https://github.com/opsknight-labs/OpsKnight/security/advisories).
+- Use a supported release and track [security advisories](https://github.com/OpsKnightLabs/OpsKnight/security/advisories).
 - Terminate HTTPS at a trusted ingress; restrict database and administrative network access.
 - Configure strong `NEXTAUTH_SECRET` and encryption keys outside source control, stored separately from database backups.
 - New protected secret writes use authenticated AES-256-GCM envelopes. Legacy CBC reads remain supported. API keys are hashed; general incident text is not field-encrypted. See [security hardening and key rotation](docs/v2.0.0/operate/security/hardening.md). Never remove an old key until all dependent ciphertext and required backups can be recovered.

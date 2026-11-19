@@ -9,7 +9,7 @@ version: '3.8'
 # Deploy:
 #   ./deploy/swarm/scripts/deploy.sh
 #   OR
-#   OPSKNIGHT_IMAGE="ghcr.io/opsknight-labs/opsknight:<tag>" docker stack deploy --with-registry-auth -c deploy/swarm/docker-stack.yml opsknight
+#   OPSKNIGHT_IMAGE="ghcr.io/opsknightlabs/opsknight:<tag>" docker stack deploy --with-registry-auth -c deploy/swarm/docker-stack.yml opsknight
 # ==============================================================================
 
 services:

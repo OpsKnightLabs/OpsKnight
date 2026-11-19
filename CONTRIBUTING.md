@@ -47,7 +47,7 @@ This contribution policy does not transfer ownership of your copyright to OpsKni
    ```
 3. Add upstream remote:
    ```bash
-   git remote add upstream https://github.com/opsknight-labs/opsknight.git
+   git remote add upstream https://github.com/OpsKnightLabs/opsknight.git
    ```
 
 ## Development Setup
@@ -170,7 +170,7 @@ npm run test:coverage
 
 ## Questions?
 
-- Open a [GitHub Issue](https://github.com/opsknight-labs/opsknight/issues)
+- Open a [GitHub Issue](https://github.com/OpsKnightLabs/opsknight/issues)
 - Check existing issues and discussions
 
 ---

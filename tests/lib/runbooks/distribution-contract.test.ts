@@ -12,7 +12,7 @@ const manifest = agentReleaseManifestSchema.parse({
   policySchemaVersion: 1,
   server: { minimum: '2.0.0', maximumExclusive: '3.0.0' },
   image: {
-    reference: `ghcr.io/opsknight-labs/opsknight-agent@sha256:${'b'.repeat(64)}`,
+    reference: `ghcr.io/opsknightlabs/opsknight-agent@sha256:${'b'.repeat(64)}`,
     architectures: ['linux/amd64', 'linux/arm64'],
   },
   installer: { filename: 'install.sh', sha256: 'c'.repeat(64) },
@@ -48,7 +48,7 @@ describe('verified Agent distribution', () => {
     expect(
       agentReleaseManifestSchema.safeParse({
         ...manifest,
-        image: { ...manifest.image, reference: 'ghcr.io/opsknight-labs/opsknight-agent:2.0.0' },
+        image: { ...manifest.image, reference: 'ghcr.io/opsknightlabs/opsknight-agent:2.0.0' },
       }).success
     ).toBe(false);
   });

@@ -6,7 +6,7 @@
  * docs/v2.2.0 tree.
  */
 export const MCP_DOCS_SITE = 'https://opsknight.com/docs';
-export const MCP_DOCS_REPOSITORY = 'https://github.com/opsknight-labs/OpsKnight/blob/main';
+export const MCP_DOCS_REPOSITORY = 'https://github.com/OpsKnightLabs/OpsKnight/blob/main';
 const SITE_PUBLISHED = false;
 
 /** Repository path (relative to the root) for each link; a test checks every file exists. */
