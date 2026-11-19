@@ -127,7 +127,7 @@ export function createIntegrationHandler<T>(
           integration.previousKeyExpiresAt
         ))
       ) {
-        throw IntegrationErrors.invalidPayload('Invalid integration key');
+        throw IntegrationErrors.unauthorized('Invalid integration key');
       }
 
       integrationType = integration.type;
