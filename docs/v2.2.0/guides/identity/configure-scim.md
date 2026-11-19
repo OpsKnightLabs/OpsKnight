@@ -148,19 +148,29 @@ Configure an immutable directory object identifier as `externalId` on creation.
 RFC 7643 makes this attribute optional, but the OpsKnight connector contract
 requires it to prevent unsafe identity adoption and ambiguous retries.
 
-Map the login email to `userName`. The single supported work email must equal
-`userName`. Map `displayName`, `name.formatted`, `name.givenName`,
+Map the user's email address to `userName`. OpsKnight stores one email that is
+both the login name and the work email, so the work email
+(`emails[type eq "work"].value`), when sent, must equal `userName`. A mismatch is
+rejected with HTTP 400 `invalidValue`; the error detail states that the work
+email must equal `userName`. This is intentional: the same email drives
+`userName eq` lookups and the existing-account check that requires explicit
+administrator binding. Map `displayName`, `name.formatted`, `name.givenName`,
 `name.familyName`, `active`, `title`, and the enterprise-user extension
 `department` as needed. Profile images accept HTTP(S) URLs. Unmapped attributes,
 privilege changes and unsupported PATCH paths fail with SCIM errors.
 
 For Entra, use Enterprise applications → Provisioning → Automatic. Enter the Tenant
-URL and one-time Secret Token. Map `objectId` to `externalId` and the intended login
-email to `userName`. Enable group provisioning only after reviewing the directory
+URL and one-time Secret Token. Map `objectId` to `externalId`. Change the default
+`userPrincipalName` → `userName` mapping to `mail` → `userName`, and keep `mail` →
+`emails[type eq "work"].value`. Keep `userPrincipalName` only if every user's UPN
+equals their `mail` address; otherwise users whose UPN differs fail to provision.
+Enable group provisioning only after reviewing the directory
 to operational-team boundary.
 
 For Okta, configure SCIM Integration with HTTP Header bearer authentication and
-`userName` lookup. Map an immutable directory identifier to `externalId`; enable
+`userName` lookup. Set the application username format to Email so `userName`
+is `user.email`, the same value Okta sends as the work email. Map an immutable
+directory identifier to `externalId`; enable
 create, update and deactivate. Push Groups creates directory groups. Team bindings
 require separate approval.
 
