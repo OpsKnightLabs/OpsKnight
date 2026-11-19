@@ -38,6 +38,8 @@ Pages for features unchanged since 2.1.0 remain in the [2.1.0 documentation](../
 
 - [Slack permissions and scopes](./integrations/communication/slack/permissions-and-scopes.md):
   `commands` is now required for `/incident`; workspaces connected on 2.1 must reconnect
+- [Integration tasks](./guides/integrations/README.md), including where copied integration URLs get
+  their hostname (**Settings → System → App URL** first)
 
 ## Deployment
 
