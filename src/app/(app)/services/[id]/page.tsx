@@ -24,6 +24,7 @@ import { incidentReadWhere, serviceReadWhere } from '@/lib/authorization-filters
 import { deleteService, updateService, deleteIntegration } from '../actions';
 import { parsePageParam, calculatePaginationBounds } from '@/lib/pagination-parser';
 import { logger } from '@/lib/logger';
+import { resolveIntegrationKeysForDisplay } from '@/lib/integrations/display-key';
 
 // UI Components
 import {
@@ -778,6 +779,11 @@ export default async function ServiceDetailPage({ params, searchParams }: Servic
     </div>
   );
 
+  // Keys are stored encrypted; senders need the plaintext. Only managers ever see them.
+  const integrationDisplayKeys = canManageService
+    ? await resolveIntegrationKeysForDisplay(service.integrations ?? [])
+    : new Map<string, string | null>();
+
   // --- TAB 3: INTEGRATIONS & WEBHOOKS CONTENT ---
   const integrationsContent = (
     <div className="space-y-4">
@@ -804,9 +810,11 @@ export default async function ServiceDetailPage({ params, searchParams }: Servic
               category: 'Other' as const,
               iconBg: '#475569',
             };
-            const webhookUrl = canManageService
-              ? getWebhookUrl(integrationType, integration.id, integration.key)
-              : null;
+            const displayKey = integrationDisplayKeys.get(integration.id) ?? null;
+            const webhookUrl =
+              canManageService && displayKey
+                ? getWebhookUrl(integrationType, integration.id, displayKey)
+                : null;
 
             return (
               <Card
@@ -876,6 +884,12 @@ export default async function ServiceDetailPage({ params, searchParams }: Servic
                       <p className="rounded-lg border border-border bg-muted/30 p-2.5 text-xs text-muted-foreground">
                         Integration connection details are visible to service managers only.
                       </p>
+                    ) : !displayKey ? (
+                      <InlineNotice tone="warning">
+                        This integration&apos;s key could not be decrypted, so its connection
+                        details can&apos;t be shown. Rotate the key to issue a new one, and check
+                        that the encryption keyring is configured on every replica.
+                      </InlineNotice>
                     ) : integrationType === 'EVENTS_API_V2' && webhookUrl ? (
                       <div className="space-y-2">
                         <div className="space-y-1">
@@ -897,11 +911,11 @@ export default async function ServiceDetailPage({ params, searchParams }: Servic
                             <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
                               <Key className="h-2.5 w-2.5" /> Routing Key
                             </Label>
-                            <CopyButton text={integration.key} />
+                            <CopyButton text={displayKey} />
                           </div>
                           <Input
                             readOnly
-                            value={integration.key}
+                            value={displayKey}
                             className="font-mono text-[11px] bg-muted/40 h-7 text-ellipsis"
                           />
                           <p className="text-[10.5px] text-muted-foreground leading-tight">
@@ -920,7 +934,7 @@ export default async function ServiceDetailPage({ params, searchParams }: Servic
                             </div>
                             <div className="flex items-center gap-2">
                               <CopyButton
-                                text={`curl -X POST ${webhookUrl} \\\n  -H "Content-Type: application/json" \\\n  -H "Authorization: Token token=${integration.key}" \\\n  -d '{\n    "event_action": "trigger",\n    "dedup_key": "test-${id.substring(0, 8)}-001",\n    "payload": {\n      "summary": "${service.name} Alert Test",\n      "source": "api-client",\n      "severity": "critical"\n    }\n  }'`}
+                                text={`curl -X POST ${webhookUrl} \\\n  -H "Content-Type: application/json" \\\n  -H "Authorization: Token token=${displayKey}" \\\n  -d '{\n    "event_action": "trigger",\n    "dedup_key": "test-${id.substring(0, 8)}-001",\n    "payload": {\n      "summary": "${service.name} Alert Test",\n      "source": "api-client",\n      "severity": "critical"\n    }\n  }'`}
                                 className="h-5 px-1.5 text-[10px]"
                               />
                               <ChevronDown className="h-3.5 w-3.5 text-muted-foreground transition-transform group-open:rotate-180" />
@@ -937,7 +951,7 @@ export default async function ServiceDetailPage({ params, searchParams }: Servic
                               \<br />
                               &nbsp; -H{' '}
                               <span className="text-green-400">
-                                &quot;Authorization: Token token={integration.key.substring(0, 10)}
+                                &quot;Authorization: Token token={displayKey.substring(0, 10)}
                                 ...&quot;
                               </span>{' '}
                               \<br />
