@@ -1080,7 +1080,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Download native agent release artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: native-agent-release-artifacts-${{ github.ref_name }}
           path: dist/agent
@@ -1096,7 +1096,7 @@ jobs:
           sha256sum -c SHA256SUMS
 
       - name: Download tag release certification evidence
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           name: release-certification-${{ github.ref_name }}
