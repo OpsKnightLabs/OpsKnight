@@ -3,8 +3,6 @@ import Link from 'next/link';
 import { SettingsSection } from '@/components/settings/layout/SettingsSection';
 import {
   ApplySuggestionForm,
-  DigestSettingsForm,
-  SendTestDigestButton,
   ResponseWeightsForm,
   RunbookWeightsForm,
   ScoringWeightsForm,
@@ -21,9 +19,8 @@ import {
   RECURRING_WINDOW_DAYS,
 } from '@/lib/intelligence/insights/service';
 import { listPolicyVersions, resolveEffectivePolicy } from '@/lib/intelligence/settings/service';
-import { getDigestSettings, getLatestDigestRun } from '@/lib/intelligence/digest/service';
-import { suggestScoringWeights } from '@/lib/intelligence/learning/weights-service';
-import { suggestResponseWeights } from '@/lib/intelligence/learning/response-weights';
+import { readScoringWeightProposal } from '@/lib/intelligence/learning/weights-service';
+import { readResponseWeightProposal } from '@/lib/intelligence/learning/response-weights';
 import {
   RUNBOOK_FIT_LIMITS,
   readRunbookWeightProposal,
@@ -34,26 +31,22 @@ async function load() {
   try {
     const actor = await getCurrentAuthorizationActor();
     const canManage = hasCapability(actor.role, CAPABILITIES.INTELLIGENCE_MANAGE);
-    const [insights, versions, digest, lastRun, policy, scoring, causeWeights, runbookWeights] =
-      await Promise.all([
-        getInsights(actor),
-        listPolicyVersions({}, { limit: 1 }),
-        getDigestSettings(),
-        getLatestDigestRun(),
-        resolveEffectivePolicy(null),
-        canManage ? suggestScoringWeights() : Promise.resolve(null),
-        canManage ? suggestResponseWeights().catch(() => null) : Promise.resolve(null),
-        canManage
-          ? readRunbookWeightProposal()
-              .then(stored => stored?.proposal ?? null)
-              .catch(() => null)
-          : Promise.resolve(null),
-      ]);
+    const [insights, versions, policy, scoring, causeWeights, runbookWeights] = await Promise.all([
+      getInsights(actor),
+      listPolicyVersions({}, { limit: 1 }),
+      resolveEffectivePolicy(null),
+      // Fitted by the daily lane job (learning/runbook-weights.ts); the page only reads the stored proposals.
+      canManage ? readScoringWeightProposal() : Promise.resolve(null),
+      canManage ? readResponseWeightProposal().catch(() => null) : Promise.resolve(null),
+      canManage
+        ? readRunbookWeightProposal()
+            .then(stored => stored?.proposal ?? null)
+            .catch(() => null)
+        : Promise.resolve(null),
+    ]);
     return {
       insights,
       headVersion: versions.headVersion,
-      digest,
-      lastRun,
       scoring,
       causeWeights,
       runbookWeights,
@@ -68,7 +61,7 @@ async function load() {
 }
 
 /**
- * Insights analytics, learned weights and the weekly digest, for the Evaluation & spend page.
+ * Insights analytics and learned weights, for the Evaluation & spend page.
  * The caller has already checked `intelligence.read`; every list is scoped to the viewer.
  */
 export default async function InsightsSections({ canManage }: { canManage: boolean }) {
@@ -282,7 +275,9 @@ export default async function InsightsSections({ canManage }: { canManage: boole
                   {loaded?.causeWeights ? (
                     <div className="space-y-3 py-3">
                       <p className="text-sm text-muted-foreground">
-                        {loaded.causeWeights.support} labelled causes. Held-out loss{' '}
+                        {loaded.causeWeights.support} labelled causes (
+                        {loaded.causeWeights.fromImplicit ?? 0} implicit, from rollbacks and
+                        postmortems, at lower weight). Held-out loss{' '}
                         {loaded.causeWeights.heldOutLoss.toFixed(3)} versus{' '}
                         {loaded.causeWeights.baselineLoss.toFixed(3)} with default weights.
                       </p>
@@ -329,9 +324,11 @@ export default async function InsightsSections({ canManage }: { canManage: boole
                       <p className="text-sm text-muted-foreground">
                         {loaded.runbookWeights.support} labelled recommendations (
                         {loaded.runbookWeights.fromOutcomes} observed outcomes,{' '}
-                        {loaded.runbookWeights.fromFeedback} responder verdicts). Held-out loss{' '}
-                        {loaded.runbookWeights.heldOutLoss.toFixed(3)} versus{' '}
-                        {loaded.runbookWeights.baselineLoss.toFixed(3)} with the shipped ranking.
+                        {loaded.runbookWeights.fromFeedback} responder verdicts,{' '}
+                        {loaded.runbookWeights.fromImplicit ?? 0} implicit postmortem mentions at
+                        lower weight). Held-out loss {loaded.runbookWeights.heldOutLoss.toFixed(3)}{' '}
+                        versus {loaded.runbookWeights.baselineLoss.toFixed(3)} with the shipped
+                        ranking.
                       </p>
                       <dl className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
                         {(() => {
@@ -407,30 +404,6 @@ export default async function InsightsSections({ canManage }: { canManage: boole
                 </SettingsSection>
               )}
             </SectionAnchor>
-          )}
-
-          {insights.weekly && loaded && (
-            <div id="digest" className="scroll-mt-24">
-              <SettingsSection
-                title="Weekly digest"
-                description="A short email with these numbers, recurring problems and unusual volume. Off by default; it never changes anything."
-                action={
-                  <Badge variant={loaded.digest.enabled ? 'default' : 'secondary'}>
-                    {loaded.digest.enabled ? 'On' : 'Off'}
-                  </Badge>
-                }
-              >
-                <DigestSettingsForm settings={loaded.digest} canManage={canManage} />
-                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border py-3">
-                  <p className="text-xs text-muted-foreground">
-                    {loaded.lastRun
-                      ? `Last digest ${loaded.lastRun.weekKey}: ${loaded.lastRun.status === 'COMPLETED' ? 'sent' : 'sending'} to ${loaded.lastRun.sent} ${loaded.lastRun.sent === 1 ? 'person' : 'people'}${loaded.lastRun.failed > 0 ? `, ${loaded.lastRun.failed} not delivered` : ''}.`
-                      : 'No digest has been sent yet.'}
-                  </p>
-                  {canManage && <SendTestDigestButton />}
-                </div>
-              </SettingsSection>
-            </div>
           )}
         </>
       )}

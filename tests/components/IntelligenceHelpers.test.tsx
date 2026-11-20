@@ -5,12 +5,12 @@ import MetricChangeWhy from '@/components/analytics/MetricChangeWhy';
 import StatusDraftSuggestions from '@/components/status-page/StatusDraftSuggestions';
 import { loadStatusDraftsAction } from '@/app/(app)/settings/status-pages/helper-actions';
 import { suggestForIncidentDraftAction } from '@/app/(app)/incidents/helper-actions';
-import { explainMetricChangeAction } from '@/app/(app)/analytics/helper-actions';
+import { explainMetricChangeAction } from '@/app/(app)/insights/helper-actions';
 
 vi.mock('@/app/(app)/incidents/helper-actions', () => ({
   suggestForIncidentDraftAction: vi.fn(),
 }));
-vi.mock('@/app/(app)/analytics/helper-actions', () => ({
+vi.mock('@/app/(app)/insights/helper-actions', () => ({
   explainMetricChangeAction: vi.fn(),
 }));
 
@@ -87,6 +87,26 @@ describe('CreateIncidentSuggestions', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Use service Payments' }));
     expect(onPickService).toHaveBeenCalledWith('svc-pay');
     expect(screen.getByRole('button', { name: 'Set urgency to High' })).toBeInTheDocument();
+  });
+
+  it('links the possible duplicate to the mobile incident page on /m', async () => {
+    render(
+      <CreateIncidentSuggestions
+        title="checkout returns 500"
+        serviceId=""
+        urgency="LOW"
+        getDescription={() => undefined}
+        selectableServiceIds={new Set(['svc-pay'])}
+        onPickService={vi.fn()}
+        onPickUrgency={vi.fn()}
+        incidentHrefBase="/m/incidents"
+      />
+    );
+    await act(() => vi.advanceTimersByTimeAsync(600));
+    expect(screen.getByRole('link', { name: 'Checkout 500s' })).toHaveAttribute(
+      'href',
+      '/m/incidents/inc-1'
+    );
   });
 });
 

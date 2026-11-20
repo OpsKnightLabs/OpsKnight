@@ -783,7 +783,10 @@ test('independent rule wizard, paused duplicate and rule evidence stay truthful 
   await page
     .getByRole('button', { name: 'Validate configuration · No execution', exact: true })
     .click();
-  await expect(page.getByRole('status')).toContainText('This check does not activate the rule');
+  // Scoped to main: the global status bar has its own realtime live region.
+  await expect(page.getByRole('main').getByRole('status')).toContainText(
+    'This check does not activate the rule'
+  );
   await expect(page.getByRole('button', { name: 'Run now · Preview plan' })).not.toBeVisible();
   expect(
     (await prisma.serviceAutomationRule.findUniqueOrThrow({ where: { id: rule.id } })).enabled
@@ -1064,9 +1067,7 @@ test('server pagination, administrator labels, effective capabilities and budget
   await expect
     .poll(() => prisma.runbookExecutionSigningKey.count({ where: { state: 'ACTIVE' } }))
     .toBe(1);
-  // Follow application navigation so the upgrade action's refresh cannot abort a document load.
-  await page.getByRole('link', { name: 'Return to Agent health and diagnostics' }).click();
-  await page.waitForURL('**/runbooks/agents');
+  await page.goto(`/runbooks/agents?q=${encodeURIComponent(agent.name)}`);
   await page
     .getByRole('navigation', { name: 'Infrastructure sections' })
     .getByRole('link', { name: /^security/i })
@@ -1770,27 +1771,27 @@ test('service objectives retain immutable versions through UI create edit and ar
     page.getByRole('heading', { name: 'Service objectives', exact: true })
   ).toBeVisible();
   const name = `Response objective ${crypto.randomUUID()}`;
-  const createSection = page
-    .locator('#main-content details:visible')
-    .filter({ has: page.locator(':scope > summary', { hasText: /^Create objective$/ }) });
-  await createSection.locator(':scope > summary').click();
+  await page.getByRole('button', { name: /Create New Objective/ }).click();
+  const createSection = page.locator('form').filter({
+    has: page.getByRole('button', { name: 'Create objective', exact: true }),
+  });
   await createSection.getByLabel('Measurement', { exact: true }).selectOption('MTTA');
   await createSection.getByLabel('Name', { exact: true }).fill(name);
-  await createSection
-    .getByLabel('Target (percent for uptime, minutes for MTTA/MTTR)', { exact: true })
-    .fill('20');
+  await createSection.getByLabel('Target', { exact: true }).fill('20');
   await createSection.getByLabel('Comparison', { exact: true }).selectOption('LESS_THAN_OR_EQUAL');
   await createSection.getByRole('button', { name: 'Create objective', exact: true }).click();
-  const article = page
-    .getByRole('article')
-    .filter({ has: page.getByRole('heading', { name, exact: true }) });
-  await expect(article).toBeVisible();
-  await article.getByText('Edit objective', { exact: true }).click();
-  await article
-    .getByLabel('Target (percent for uptime, minutes for MTTA/MTTR)', { exact: true })
-    .fill('15');
-  await article.getByRole('button', { name: 'Save new version', exact: true }).click();
-  await expect(article.getByText(/Version 2/)).toBeVisible();
+  const objectiveRow = (label: string) =>
+    page
+      .getByRole('table', { name: 'Service objectives' })
+      .getByRole('row')
+      .filter({ hasText: label });
+  const row = objectiveRow(name);
+  await expect(row).toBeVisible();
+  await row.getByRole('button', { name: `Edit objective ${name}` }).click();
+  const editDialog = page.getByRole('dialog', { name: 'Edit objective' });
+  await editDialog.getByLabel('Target', { exact: true }).fill('15');
+  await editDialog.getByRole('button', { name: 'Save new version', exact: true }).click();
+  await expect(row.getByText(/Version 2/)).toBeVisible();
   const versions = await prisma.serviceObjective.findMany({
     where: { name },
     orderBy: { version: 'asc' },
@@ -1798,12 +1799,12 @@ test('service objectives retain immutable versions through UI create edit and ar
   expect(versions.map(version => version.target)).toEqual([20, 15]);
   expect(versions[0].activeTo).not.toBeNull();
   expect(versions[1].activeTo).toBeNull();
-  await article
-    .locator('summary')
-    .filter({ hasText: /^Archive objective$/ })
+  await row.getByRole('button', { name: 'Archive objective', exact: true }).click();
+  await page
+    .getByRole('dialog', { name: /^Archive "/ })
+    .getByRole('button', { name: 'Archive objective', exact: true })
     .click();
-  await article.getByRole('button', { name: 'Archive objective', exact: true }).click();
-  await expect(article).not.toBeVisible();
+  await expect(row).not.toBeVisible();
   const retained = await prisma.serviceObjective.findMany({ where: { name } });
   expect(retained).toHaveLength(2);
   expect(retained.every(version => version.activeTo !== null)).toBe(true);
@@ -1819,18 +1820,16 @@ test('service objectives retain immutable versions through UI create edit and ar
     },
   });
   await page.reload();
-  const legacyArticle = page
-    .getByRole('article')
-    .filter({ has: page.getByRole('heading', { name: legacy.name, exact: true }) });
-  await expect(legacyArticle).toBeVisible();
-  await expect(legacyArticle.getByText('Edit objective', { exact: true })).toHaveCount(0);
-  await expect(legacyArticle.getByText(/legacy target; evaluation unavailable/)).toBeVisible();
-  await legacyArticle
-    .locator('summary')
-    .filter({ hasText: /^Archive objective$/ })
+  const legacyRow = objectiveRow(legacy.name);
+  await expect(legacyRow).toBeVisible();
+  await expect(legacyRow.getByRole('button', { name: /Edit objective/ })).toHaveCount(0);
+  await expect(legacyRow.getByText(/legacy target; evaluation unavailable/)).toBeVisible();
+  await legacyRow.getByRole('button', { name: 'Archive objective', exact: true }).click();
+  await page
+    .getByRole('dialog', { name: /^Archive "/ })
+    .getByRole('button', { name: 'Archive objective', exact: true })
     .click();
-  await legacyArticle.getByRole('button', { name: 'Archive objective', exact: true }).click();
-  await expect(legacyArticle).not.toBeVisible();
+  await expect(legacyRow).not.toBeVisible();
   expect(
     (await prisma.serviceObjective.findUniqueOrThrow({ where: { id: legacy.id } })).activeTo
   ).not.toBeNull();

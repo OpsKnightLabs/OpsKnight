@@ -22,7 +22,6 @@ import {
   IntelligenceGroupHeader,
   SectionAnchor,
 } from '@/components/settings/layout/IntelligenceGroupHeader';
-import SettingsTopNav from '@/components/settings/layout/SettingsTopNav';
 import { SettingsSection } from '@/components/settings/layout/SettingsSection';
 import { LEGACY_INTELLIGENCE_ROUTES } from '@/lib/intelligence/settings/routes';
 
@@ -129,45 +128,10 @@ describe('IntelligenceGroupHeader', () => {
     );
     expect(container.querySelector('#insights')?.className).toMatch(/scroll-mt-24/);
     expect(container.querySelector('#alert-quality')?.className).toMatch(/scroll-mt-24/);
-    expect(container.querySelectorAll('[id]')).toHaveLength(2);
-  });
-});
-
-describe('SettingsTopNav: Intelligence', () => {
-  const tab = () => screen.queryByRole('link', { name: /^intelligence$/i });
-
-  it('is a first-class tab for admins, responders and auditors', () => {
-    nav.pathname = '/settings';
-    for (const props of [
-      { isAdmin: true, isAuditor: false, isResponderOrAbove: true },
-      { isAdmin: false, isAuditor: false, isResponderOrAbove: true },
-      { isAdmin: false, isAuditor: true, isResponderOrAbove: false },
-    ]) {
-      const { unmount } = render(<SettingsTopNav {...props} />);
-      expect(tab()).toHaveAttribute('href', '/settings/intelligence');
-      unmount();
-    }
-  });
-
-  it('is hidden from roles that cannot read intelligence', () => {
-    nav.pathname = '/settings';
-    render(<SettingsTopNav isAdmin={false} isAuditor={false} isResponderOrAbove={false} />);
-    expect(tab()).not.toBeInTheDocument();
-  });
-
-  it('is the active tab on every intelligence settings page, instead of Overview', () => {
-    for (const pathname of [
-      '/settings/intelligence',
-      '/settings/intelligence/evaluation',
-      '/settings/intelligence/services/svc-1/squire',
-    ]) {
-      nav.pathname = pathname;
-      const { unmount } = render(<SettingsTopNav isAdmin isAuditor={false} isResponderOrAbove />);
-      expect(tab()!.className).toMatch(/border-primary/);
-      expect(screen.getByRole('link', { name: /^overview$/i }).className).not.toMatch(
-        /border-primary\b/
-      );
-      unmount();
-    }
+    // Only the named sections are anchors; generated heading ids (useId) are not.
+    const anchors = Array.from(container.querySelectorAll('[id]'))
+      .map(el => el.id)
+      .filter(id => /^[a-z][a-z-]*$/.test(id));
+    expect(anchors).toEqual(['insights', 'alert-quality']);
   });
 });

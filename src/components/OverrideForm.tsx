@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { useToast } from '@/hooks/use-product-notification';
+import { notify } from '@/lib/toast';
 import {
   Sheet,
   SheetContent,
@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/shadcn/button';
 import { Label } from '@/components/ui/shadcn/label';
 import ResponderCombobox, { type ResponderOption } from './ResponderCombobox';
+import OverrideCoverSuggestions from './OverrideCoverSuggestions';
 import { formatDateForInput, formatDateTime, parseDateTimeInTimeZone } from '@/lib/timezone';
 import { AlertCircle, Clock, Loader2, ShieldPlus, UserRoundCog } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -39,7 +40,6 @@ export default function OverrideForm({
   scheduleTimeZone,
 }: OverrideFormProps) {
   const router = useRouter();
-  const { showToast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<OverrideMode>('replacement');
@@ -83,28 +83,28 @@ export default function OverrideForm({
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!selectedUserId) return showToast('Select the responder taking coverage.', 'error');
+    if (!selectedUserId) return notify.error('Select the responder taking coverage.');
     if (mode === 'replacement' && !replacesUserId) {
-      return showToast('Select the responder being replaced.', 'error');
+      return notify.error('Select the responder being replaced.');
     }
     if (!hasValidRange) {
-      return showToast('Enter a valid schedule-timezone range with end after start.', 'error');
+      return notify.error('Enter a valid schedule-timezone range with end after start.');
     }
 
     const formData = new FormData(event.currentTarget);
     startTransition(async () => {
       try {
         const result = await createOverride(scheduleId, formData);
-        if (result?.error) return showToast(result.error, 'error');
-        showToast(
-          mode === 'replacement' ? 'Replacement created.' : 'Extra coverage added.',
-          'success'
-        );
+        if (result?.error) {
+          notify.error(result.error);
+          return;
+        }
+        notify.success(mode === 'replacement' ? 'Replacement created.' : 'Extra coverage added.');
         reset();
         setOpen(false);
         router.refresh();
       } catch {
-        showToast('Failed to create override.', 'error');
+        notify.error('Failed to create override.');
       }
     });
   };
@@ -281,6 +281,15 @@ export default function OverrideForm({
               )}
             </div>
           )}
+
+          <OverrideCoverSuggestions
+            scheduleId={scheduleId}
+            start={startInstant}
+            end={endInstant}
+            replacesUserId={mode === 'replacement' && replacesUserId ? replacesUserId : null}
+            selectedUserId={selectedUserId}
+            onPick={setSelectedUserId}
+          />
 
           <div className="flex justify-end gap-3 border-t pt-4">
             <Button

@@ -58,6 +58,8 @@ export const USER_REFERENCE_POLICY = {
   avatar: { deactivate: 'KEEP', delete: 'CASCADE' },
   dashboards: { deactivate: 'REPORT', delete: 'BLOCK' },
   savedReports: { deactivate: 'KEEP', delete: 'CASCADE' },
+  analyticsViews: { deactivate: 'KEEP', delete: 'CASCADE' },
+  analyticsDigest: { deactivate: 'SUPPRESS', delete: 'CASCADE' },
   reportExports: { deactivate: 'KEEP', delete: 'CASCADE' },
   auditExports: { deactivate: 'REVOKE', delete: 'CASCADE' },
   assignedActionItems: { deactivate: 'REPORT', delete: 'BLOCK' },
@@ -75,6 +77,7 @@ export const USER_REFERENCE_POLICY = {
   aiUsageDays: { deactivate: 'KEEP', delete: 'CASCADE' },
   squireActionReceipts: { deactivate: 'KEEP', delete: 'CASCADE' },
   squireFeedback: { deactivate: 'KEEP', delete: 'CASCADE' },
+  squireDialogueStates: { deactivate: 'KEEP', delete: 'CASCADE' },
   knowledgeFactsApproved: { deactivate: 'KEEP', delete: 'SET_NULL' },
   opsInsightDecisions: { deactivate: 'KEEP', delete: 'SET_NULL' },
 } as const;

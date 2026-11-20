@@ -5,9 +5,13 @@ import { z } from 'zod/v4';
 import prisma from '@/lib/prisma';
 import { AppError } from '@/lib/errors';
 import { DEFAULT_RUNBOOK_WEIGHTS, runbookWeightsSchema, type RunbookWeights } from '../contract';
+import { withDbBudget } from '../jobs/db-budget';
 import { stableAnalysisHash } from '../jobs/input-hash';
 import { enqueueWorkItems, WORK_KINDS, type ClaimedWorkItem } from '../jobs/work-queue';
 import { scoreRunbook, type RunbookScoreFeatures } from '../recommendations/wilson';
+import { STORED_PROPOSAL_KINDS } from './proposal-store';
+import { refreshResponseWeightProposal } from './response-weights';
+import { refreshScoringWeightProposal } from './weights-service';
 import {
   parseOrThrow,
   publishPolicyVersion,
@@ -20,6 +24,7 @@ import {
   coordinateDescent,
   hasMinimumSupport,
   holdOutSplit,
+  IMPLICIT_LABEL_WEIGHT,
   logLoss,
   sigmoid,
 } from './bounded-fit';
@@ -41,7 +46,9 @@ import {
 
 export interface RunbookExample extends RunbookScoreFeatures {
   helpful: boolean;
-  source: 'FEEDBACK' | 'OUTCOME';
+  /** IMPLICIT: the runbook is named in the incident's postmortem; weighted below stated labels. */
+  source: 'FEEDBACK' | 'OUTCOME' | 'IMPLICIT';
+  weight?: number;
 }
 
 export interface RunbookWeightsProposal {
@@ -52,6 +59,7 @@ export interface RunbookWeightsProposal {
   /** Labels by origin, so a reviewer can see what the proposal rests on. */
   fromFeedback: number;
   fromOutcomes: number;
+  fromImplicit: number;
 }
 
 export const RUNBOOK_FIT_LIMITS = {
@@ -120,6 +128,7 @@ export function fitRunbookWeights(
     support: rows.length,
     fromFeedback: rows.filter(row => row.source === 'FEEDBACK').length,
     fromOutcomes: rows.filter(row => row.source === 'OUTCOME').length,
+    fromImplicit: rows.filter(row => row.source === 'IMPLICIT').length,
   };
 }
 
@@ -149,7 +158,7 @@ export async function loadRunbookExamples(
 ): Promise<RunbookExample[]> {
   const { lookbackDays, maxRows, statementTimeoutMs } = RUNBOOK_FIT_LIMITS;
   const resolvedWithinMinutes = (await getIntelligenceSettings(client)).runbookFixWindowMinutes;
-  const [feedback, outcomes] = await client.$transaction(async tx => {
+  const [feedback, outcomes, implicit] = await client.$transaction(async tx => {
     await tx.$executeRawUnsafe(`SET LOCAL statement_timeout = ${statementTimeoutMs}`);
     const verdicts = await tx.$queryRaw<LabelRow[]>`
       SELECT DISTINCT ON (f."id") f."id" AS "findingId", f."incidentId", f."subjectRef" AS "runbookId",
@@ -190,15 +199,31 @@ export async function loadRunbookExamples(
           AND x."subjectRef" = d."runbookId" AND x."createdAt" <= d."createdAt"
         ORDER BY x."createdAt" DESC LIMIT 1
       ) f ON true`;
-    return [verdicts, observed] as const;
+    // Implicit: a recommended runbook the postmortem names in its resolution or root cause.
+    const named = await tx.$queryRaw<LabelRow[]>`
+      SELECT DISTINCT ON (f."id") f."id" AS "findingId", f."incidentId", f."subjectRef" AS "runbookId",
+             f."evidence", true AS helpful
+      FROM "Postmortem" p
+      JOIN "IntelligenceFinding" f ON f."incidentId" = p."incidentId" AND f."kind" = 'RUNBOOK_RECOMMENDATION'
+      JOIN "Runbook" rb ON rb."id" = f."subjectRef"
+      WHERE p."updatedAt" >= now() - make_interval(days => ${lookbackDays}::int)
+        AND length(rb."name") >= 6
+        AND strpos(lower(coalesce(p."resolution", '') || ' ' || coalesce(p."rootCause", '')), lower(rb."name")) > 0
+      ORDER BY f."id", f."createdAt" DESC
+      LIMIT ${maxRows}`;
+    return [verdicts, observed, named] as const;
   });
-  return mergeRunbookLabels(feedback, outcomes);
+  return mergeRunbookLabels(feedback, outcomes, implicit);
 }
 
-/** One label per (incident, runbook); an observed outcome replaces a verdict on the same recommendation. */
+/**
+ * One label per (incident, runbook). Precedence: observed outcome over a stated verdict over an implicit
+ * postmortem mention.
+ */
 export function mergeRunbookLabels(
   feedback: readonly LabelRow[],
-  outcomes: readonly LabelRow[]
+  outcomes: readonly LabelRow[],
+  implicit: readonly LabelRow[] = []
 ): RunbookExample[] {
   const byKey = new Map<string, RunbookExample & { findingId: string }>();
   const add = (row: LabelRow, source: RunbookExample['source']) => {
@@ -215,8 +240,10 @@ export function mergeRunbookLabels(
       ...(parsed.data.sameProblem ? { sameProblem: parsed.data.sameProblem } : {}),
       helpful: row.helpful,
       source,
+      ...(source === 'IMPLICIT' ? { weight: IMPLICIT_LABEL_WEIGHT } : {}),
     });
   };
+  for (const row of implicit) add(row, 'IMPLICIT');
   for (const row of feedback) add(row, 'FEEDBACK');
   for (const row of outcomes) add(row, 'OUTCOME');
   return [...byKey.entries()]
@@ -302,8 +329,13 @@ export type RunbookWeightFitOutcome = 'unchanged' | 'fitted' | 'stale';
  */
 export async function runRunbookWeightFit(
   item: Pick<ClaimedWorkItem, 'generation' | 'force'>,
-  client: typeof prisma = prisma
+  client: typeof prisma = prisma,
+  budget: { maxDbMs: number } = { maxDbMs: 30_000 }
 ): Promise<RunbookWeightFitOutcome> {
+  // The same daily job refits the similarity and cause proposals the settings page shows, each under the
+  // lane's statement budget.
+  await withDbBudget(budget, tx => refreshScoringWeightProposal(tx), client);
+  await withDbBudget(budget, tx => refreshResponseWeightProposal(tx), client);
   const examples = await loadRunbookExamples(client);
   const inputHash = stableAnalysisHash(['runbook-weights:v1', RUNBOOK_FIT_LIMITS, examples]);
   const stored = await client.intelligencePattern.findUnique({
@@ -368,11 +400,16 @@ export async function scheduleRunbookWeightFit(
 ): Promise<boolean> {
   if (now - fitSchedule.checkedAt < RUNBOOK_FIT_SCHEDULE.checkIntervalMs) return false;
   fitSchedule.checkedAt = now;
-  const row = await client.intelligencePattern.findUnique({
-    where: proposalWhere,
+  const kinds = [PROPOSAL_ROW.kind, ...STORED_PROPOSAL_KINDS];
+  const rows = await client.intelligencePattern.findMany({
+    where: { scopeKey: PROPOSAL_ROW.scopeKey, key: PROPOSAL_ROW.key, kind: { in: kinds } },
     select: { lastSeenAt: true },
   });
-  if (row && now - row.lastSeenAt.getTime() < RUNBOOK_FIT_SCHEDULE.refitAfterMs) return false;
+  if (
+    rows.length === kinds.length &&
+    rows.every(row => now - row.lastSeenAt.getTime() < RUNBOOK_FIT_SCHEDULE.refitAfterMs)
+  )
+    return false;
   await enqueueWorkItems([{ kind: WORK_KINDS.FIT_RUNBOOK_WEIGHTS, subjectKey: 'global' }], client);
   return true;
 }

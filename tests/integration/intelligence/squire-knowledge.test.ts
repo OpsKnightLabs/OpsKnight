@@ -20,7 +20,11 @@ import { saveAiProvider, updateAiSettings } from '@/lib/intelligence/ai/settings
 import { purgeExpiredIntelligenceData } from '@/lib/intelligence/jobs/retention';
 import { DEFAULT_HANDLERS } from '@/lib/intelligence/jobs/runner';
 import { claimWorkItems, WORK_KINDS } from '@/lib/intelligence/jobs/work-queue';
-import { listServiceFacts, removeServiceFact } from '@/lib/intelligence/memory/facts';
+import {
+  listServiceFacts,
+  reconfirmServiceFact,
+  removeServiceFact,
+} from '@/lib/intelligence/memory/facts';
 import {
   resetSquireMemorySchedule,
   scheduleSquireMemoryWork,
@@ -245,6 +249,9 @@ describe('knowledge sync', () => {
     expect(chunks.map(chunk => chunk.sourceKind).sort()).toEqual([
       'INCIDENT_NOTE',
       'INCIDENT_NOTE',
+      // Section-aware: summary, root cause and resolution are separate chunks.
+      'POSTMORTEM',
+      'POSTMORTEM',
       'POSTMORTEM',
       'RESOLUTION_NOTE',
       'RUNBOOK_STEP',
@@ -257,9 +264,9 @@ describe('knowledge sync', () => {
       teamId: w.teamA.id,
       incidentId: w.incidentA.id,
     });
-    expect(chunks.find(chunk => chunk.postmortemId === postmortem.id)?.text).toMatch(
-      /Root cause: maxmemory too low/
-    );
+    expect(
+      chunks.filter(chunk => chunk.postmortemId === postmortem.id).map(chunk => chunk.text)
+    ).toContainEqual(expect.stringMatching(/Root cause: maxmemory too low/));
 
     // Idempotent: nothing changed, nothing rewritten (the cursors moved past every source).
     const before = await db.knowledgeChunk.findMany({ select: { id: true, updatedAt: true } });
@@ -276,12 +283,11 @@ describe('knowledge sync', () => {
     });
     const third = await syncKnowledgePass(await budget(), later());
     expect(third.written).toBe(1);
-    const updated = await db.knowledgeChunk.findFirstOrThrow({
-      where: { postmortemId: postmortem.id },
-    });
-    expect(updated.text).toMatch(/larger instance class/);
-    expect(updated.embeddingModel).toBeNull();
-    expect(await db.knowledgeChunk.count({ where: { postmortemId: postmortem.id } })).toBe(1);
+    const sections = await db.knowledgeChunk.findMany({ where: { postmortemId: postmortem.id } });
+    const updated = sections.find(chunk => /larger instance class/.test(chunk.text));
+    expect(updated?.text).toMatch(/^Resolution: Moved the cache to a larger instance class/);
+    expect(updated?.embeddingModel).toBeNull();
+    expect(sections).toHaveLength(3);
 
     // Deleting a source removes its knowledge at once (cascade); archiving a runbook on the next pass.
     await db.incidentNote.delete({ where: { id: w.noteA.id } });
@@ -448,6 +454,20 @@ describe('knowledge search', () => {
       });
       expect(result.coverage).toBe('SEMANTIC');
       expect(result.items[0].source.id).toBe(w.incidentB.id);
+      // Hybrid: a passage that shares no word with the query is still found through its vector.
+      const vectorOnly = await searchKnowledgeForActor(await actorOf(admin.id), {
+        query: 'zebra quokka',
+        personal: true,
+      });
+      expect(vectorOnly.coverage).toBe('SEMANTIC');
+      expect(vectorOnly.items.map(item => item.source.id)).toContain(w.incidentB.id);
+      expect(vectorOnly.items.map(item => item.source.id)).not.toContain(w.incidentA.id);
+      // Vector candidates go through the same visibility checks as lexical ones.
+      const hidden = await searchKnowledgeForActor(await actorOf(w.memberA.id), {
+        query: 'zebra quokka',
+        personal: true,
+      });
+      expect(hidden.items.map(item => item.source.id)).not.toContain(w.incidentB.id);
     } finally {
       registerEmbeddingResolver(async () => null);
     }
@@ -499,6 +519,10 @@ describe('learned service facts', () => {
     const { admin } = await setup({ ai: true });
     const w = await world();
     const responder = await createTestUser({ role: 'RESPONDER' });
+    // Curating a service's knowledge is for the people who run it: the responder is on its team.
+    await db.teamMember.create({
+      data: { userId: responder.id, teamId: w.teamA.id, role: 'MEMBER' },
+    });
     const fact = 'Cache A failover takes about four minutes; wait before restarting pods.';
 
     // The model can only propose; the card names the service and nothing is stored yet.
@@ -568,6 +592,46 @@ describe('learned service facts', () => {
         })
       ).items
     ).toEqual([]);
+
+    // Not re-confirmed for 180 days: still listed (as stale), but never searched or shown to the model.
+    await db.knowledgeChunk.update({
+      where: { id: stored[0].id },
+      data: { sourceUpdatedAt: new Date(Date.now() - 181 * 24 * HOUR) },
+    });
+    expect((await listServiceFacts(await actorOf(w.memberA.id), w.serviceA.id))?.[0]).toMatchObject(
+      { text: fact, stale: true }
+    );
+    const staleSearch = await searchKnowledgeForActor(await actorOf(w.memberA.id), {
+      query: 'failover restarting',
+      personal: false,
+    });
+    expect(staleSearch.items.map(item => item.kind)).not.toContain('SERVICE_FACT');
+    await expect(
+      reconfirmServiceFact(await actorOf(w.memberB.id), {
+        serviceId: w.serviceA.id,
+        factId: stored[0].id,
+      })
+    ).rejects.toThrow();
+    expect(
+      await reconfirmServiceFact(await actorOf(admin.id), {
+        serviceId: w.serviceA.id,
+        factId: stored[0].id,
+      })
+    ).toBe(true);
+    expect((await listServiceFacts(await actorOf(w.memberA.id), w.serviceA.id))?.[0]).toMatchObject(
+      { stale: false }
+    );
+    expect(
+      (
+        await searchKnowledgeForActor(await actorOf(w.memberA.id), {
+          query: 'failover restarting',
+          personal: false,
+        })
+      ).items[0]
+    ).toMatchObject({ kind: 'SERVICE_FACT' });
+    expect(
+      await db.auditLog.count({ where: { action: 'intelligence.squire.fact.reconfirmed' } })
+    ).toBe(1);
 
     await expect(
       removeServiceFact(await actorOf(w.memberB.id), {

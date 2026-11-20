@@ -10,6 +10,7 @@ import DetailHeroBanner from '@/components/ui/DetailHeroBanner';
 import { CheckSquare, Circle, Clock, CheckCircle2, AlertOctagon } from 'lucide-react';
 import { getJiraCapabilitiesByServiceIds } from '@/lib/jira-capabilities';
 import { serializeJiraIssueReference } from '@/lib/jira-references';
+import { recurredActionItemIds } from '@/lib/intelligence/helpers/action-item-suggest-loader';
 import { formatActionItemDueDate } from '@/lib/action-items';
 import { parsePageParam, calculatePaginationBounds, parseEnumValue } from '@/lib/pagination-parser';
 import { requirePageAccess } from '@/lib/access/server';
@@ -26,7 +27,6 @@ export default async function ActionItemsPage({
     status?: string;
     owner?: string;
     priority?: string;
-    view?: 'board' | 'list';
     page?: string;
     search?: string;
     q?: string;
@@ -40,7 +40,6 @@ export default async function ActionItemsPage({
   const status = parseEnumValue(params.status, ALLOWED_STATUSES);
   const owner = params.owner;
   const priority = parseEnumValue(params.priority, ALLOWED_PRIORITIES);
-  const view = params.view || 'board';
   const requestedPage = parsePageParam(params.page);
   const searchQuery = (params.search || params.q || '').trim();
 
@@ -149,6 +148,8 @@ export default async function ActionItemsPage({
         id: true,
         name: true,
         email: true,
+        avatarUrl: true,
+        gender: true,
       },
     },
     postmortem: {
@@ -206,6 +207,8 @@ export default async function ActionItemsPage({
     description: record.description ?? '',
     owner: record.ownerId ?? undefined,
     ownerName: record.owner?.name ?? undefined,
+    ownerAvatarUrl: record.owner?.avatarUrl,
+    ownerGender: record.owner?.gender,
     dueDate: formatActionItemDueDate(record.dueDate),
     status: record.status,
     priority: record.priority,
@@ -233,7 +236,11 @@ export default async function ActionItemsPage({
     skip: pagination.skip,
     take: pagination.take,
   });
-  const filteredItems = records.map(mapRecordToBoardItem);
+  const recurred = await recurredActionItemIds(records.map(record => record.id));
+  const filteredItems = records.map(record => ({
+    ...mapRecordToBoardItem(record),
+    causeRecurred: recurred.has(record.id),
+  }));
 
   const canManage = permissions.isResponderOrAbove;
   const jiraCapabilitiesByServiceId = await getJiraCapabilitiesByServiceIds(
@@ -246,7 +253,6 @@ export default async function ActionItemsPage({
     if (targetStatus && targetStatus !== status) p.set('status', targetStatus);
     if (owner) p.set('owner', owner);
     if (priority) p.set('priority', priority);
-    if (view && view !== 'board') p.set('view', view);
     if (searchQuery) p.set('search', searchQuery);
     const qs = p.toString();
     return qs ? `/action-items?${qs}` : '/action-items';
@@ -313,11 +319,10 @@ export default async function ActionItemsPage({
       />
 
       <ActionItemsBoard
-        key={`${status || 'all'}-${owner || 'all'}-${priority || 'all'}-${view}-${pagination.page}-${searchQuery}`}
+        key={`${status || 'all'}-${owner || 'all'}-${priority || 'all'}-${pagination.page}-${searchQuery}`}
         actionItems={filteredItems}
         users={users}
         canManage={canManage}
-        view={view}
         filters={{ status, owner, priority }}
         initialSearch={searchQuery}
         jiraCapabilitiesByServiceId={jiraCapabilitiesByServiceId}

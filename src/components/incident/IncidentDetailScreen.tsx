@@ -4,7 +4,9 @@ import IncidentInsights, {
   SuggestedRunbooks,
 } from './intelligence/IncidentInsights';
 import prisma from '@/lib/prisma';
+import { CHAT_EVENT_DISPLAY_MAX, LIFECYCLE_EVENT_WHERE } from '@/lib/incidents/event-filters';
 import { Suspense } from 'react';
+import UserAvatar from '@/components/UserAvatar';
 import { incidentStatusTone, statusGradientClass } from '@/lib/design/status-palette';
 import IncidentAutomationCard from '@/components/automation/IncidentAutomationCard';
 import EscalationExecutionHealth from '@/components/incident/detail/EscalationExecutionHealth';
@@ -13,8 +15,10 @@ import { visibleIncidentSource } from '@/lib/automation/presentation/source-visi
 import { CAPABILITIES } from '@/lib/authorization';
 import { resolveEffectivePolicyForRequest } from '@/lib/intelligence/settings/service';
 import { getAiSettings } from '@/lib/intelligence/ai/settings';
+import { loadIncidentStatusUpdate } from '@/lib/intelligence/helpers/status-draft-loader';
 import { draftIncidentSummaryNoteAction } from '@/app/(app)/incidents/[id]/intelligence-actions';
 import Link from 'next/link';
+import ListReturnLink from '@/components/layout/ListReturnLink';
 import { notFound } from 'next/navigation';
 import {
   assertCanViewIncident,
@@ -25,6 +29,7 @@ import { denyResourceAccess } from '@/lib/access/server';
 import { getPostmortem } from '@/app/(app)/postmortems/actions';
 import IncidentHeader from '@/components/incident/IncidentHeader';
 import IncidentWatchers from '@/components/incident/detail/IncidentWatchers';
+import IncidentExperts from '@/components/incident/detail/IncidentExperts';
 import IncidentCommandBar from '@/components/incident/detail/IncidentCommandBar';
 import IncidentDetailTabs from '@/components/incident/IncidentDetailTabs';
 import IncidentRunbooks from '@/components/incident/IncidentRunbooks';
@@ -57,6 +62,7 @@ import {
 } from '@/components/incident/detail/actions';
 import { projectIncidentSlaState } from '@/lib/incident-sla/state';
 import { Badge } from '@/components/ui/shadcn/badge';
+import StatusBadge from '@/components/patterns/StatusBadge';
 import CopyButton from '@/components/common/CopyButton';
 import { getAppUrl } from '@/lib/app-url';
 import { redactNotificationError } from '@/lib/notification-operations';
@@ -135,7 +141,12 @@ export default async function IncidentDetailScreen({
       },
       assignee: { select: CLIENT_USER_SELECT },
       team: { select: { id: true, name: true } },
-      events: { orderBy: [{ createdAt: 'desc' }, { id: 'desc' }], take: 200 },
+      // Captured chat is read separately below so it cannot push lifecycle events out of the window.
+      events: {
+        where: LIFECYCLE_EVENT_WHERE,
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        take: 200,
+      },
       notes: {
         include: { user: { select: CLIENT_USER_SELECT } },
         orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
@@ -219,30 +230,45 @@ export default async function IncidentDetailScreen({
     permissions.capabilities.includes(CAPABILITIES.AUTOMATION_READ) &&
     !!storedIncident.automationDecision;
 
-  const [users, teams, customFields, totalEventsCount, totalNotesCount, totalNotificationsCount] =
-    await Promise.all([
-      canManageIncident
-        ? prisma.user.findMany({
-            where: { status: 'ACTIVE' },
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              avatarUrl: true,
-              gender: true,
-              role: true,
-            },
-            orderBy: { name: 'asc' },
-          })
-        : Promise.resolve([]),
-      canManageIncident
-        ? prisma.team.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } })
-        : Promise.resolve([]),
-      prisma.customField.findMany({ orderBy: { order: 'asc' } }),
-      prisma.incidentEvent.count({ where: { incidentId: id } }),
-      prisma.incidentNote.count({ where: { incidentId: id } }),
-      prisma.notification.count({ where: { incidentId: id } }),
-    ]);
+  const [
+    users,
+    teams,
+    customFields,
+    totalEventsCount,
+    totalNotesCount,
+    totalNotificationsCount,
+    chatEvents,
+  ] = await Promise.all([
+    canManageIncident
+      ? prisma.user.findMany({
+          where: { status: 'ACTIVE' },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatarUrl: true,
+            gender: true,
+            role: true,
+          },
+          orderBy: { name: 'asc' },
+        })
+      : Promise.resolve([]),
+    canManageIncident
+      ? prisma.team.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } })
+      : Promise.resolve([]),
+    prisma.customField.findMany({ orderBy: { order: 'asc' } }),
+    prisma.incidentEvent.count({ where: { incidentId: id } }),
+    prisma.incidentNote.count({ where: { incidentId: id } }),
+    prisma.notification.count({ where: { incidentId: id } }),
+    prisma.incidentEvent.findMany({
+      where: { incidentId: id, type: 'CHAT_MESSAGE' },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      take: CHAT_EVENT_DISPLAY_MAX,
+    }),
+  ]);
+  const events = [...incident.events, ...chatEvents].sort(
+    (a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id.localeCompare(a.id)
+  );
 
   const totalActivityCount = totalEventsCount + totalNotesCount + totalNotificationsCount;
 
@@ -254,7 +280,7 @@ export default async function IncidentDetailScreen({
 
   // Rendering an incident must not perform hidden Jira or provider network I/O.
   // Persisted state is refreshed by background webhooks or explicit sync actions.
-  const [jiraLinks, collaboration, escalationHealth] = await Promise.all([
+  const [jiraLinks, collaboration, escalationHealth, statusUpdate] = await Promise.all([
     prisma.externalIssueLink.findMany({
       where: { incidentId: id, provider: 'JIRA' },
       orderBy: { createdAt: 'desc' },
@@ -262,6 +288,10 @@ export default async function IncidentDetailScreen({
     getIncidentCollaborationView({ incidentId: id, userId: user.id }),
     // A health read failure must not block the incident page.
     getEscalationExecutionHealth(id).catch(() => null),
+    // "Post status update": the status-page publish permission (admin), like the announcement API.
+    permissions.capabilities.includes(CAPABILITIES.ADMIN_MANAGE)
+      ? loadIncidentStatusUpdate(storedIncident).catch(() => null)
+      : null,
   ]);
 
   // The access check above already ran; the viewer's capabilities drive lane redaction.
@@ -318,7 +348,7 @@ export default async function IncidentDetailScreen({
 
   const timelineProps = {
     incidentId: id,
-    events: incident.events.map(event => ({
+    events: events.map(event => ({
       id: event.id,
       message: event.message,
       type: event.type,
@@ -385,7 +415,7 @@ export default async function IncidentDetailScreen({
       incidentId={id}
       incidentStatus={incident.status}
       canManage={canManageIncident}
-      eventCount={incident.events.length}
+      eventCount={events.length}
       noteCount={incident.notes.length}
       users={users}
       postmortem={postmortem}
@@ -394,7 +424,7 @@ export default async function IncidentDetailScreen({
     />
   );
 
-  const watchersContent = (
+  const watchersCard = (
     <IncidentWatchers
       watchers={incident.watchers.map(watcher => ({
         id: watcher.id,
@@ -407,6 +437,17 @@ export default async function IncidentDetailScreen({
       onAddWatcher={handleAddWatcher}
       onRemoveWatcher={handleRemoveWatcher}
     />
+  );
+  // Suggested responders sit with the responders card; only people who can add responders see them.
+  const watchersContent = (
+    <div className="space-y-3">
+      {watchersCard}
+      {canManageIncident && (
+        <Suspense fallback={null}>
+          <IncidentExperts incidentId={id} viewerId={user.id} onAddWatcher={handleAddWatcher} />
+        </Suspense>
+      )}
+    </div>
   );
 
   const customFieldsContent = (
@@ -428,7 +469,6 @@ export default async function IncidentDetailScreen({
 
   const quickLinksContent = (
     <IncidentQuickLinksCard
-      incidentId={incident.id}
       incidentPolicy={incidentPolicy}
       pinnedPolicy={decision?.mode === 'LIVE'}
       noEscalation={decision?.mode === 'LIVE' && decision.routeType === 'NO_ESCALATION'}
@@ -457,13 +497,13 @@ export default async function IncidentDetailScreen({
       {presentation === 'mobile' ? (
         <section className="rounded-xl border border-border bg-card p-3.5 text-card-foreground shadow-none">
           <div className="mb-2.5 flex items-center justify-between gap-2 border-b border-border/70 pb-2">
-            <Link
+            <ListReturnLink
               href={backHref}
               className="inline-flex min-h-8 items-center gap-1.5 rounded-lg text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               <span>{backLabel}</span>
-            </Link>
+            </ListReturnLink>
             <div className="flex shrink-0 items-center gap-1">
               <CopyButton text={id} label="ID" className="h-7 px-2 text-[10px]" />
               <CopyButton
@@ -510,8 +550,18 @@ export default async function IncidentDetailScreen({
             </div>
             <div className="min-w-0">
               <span className="block text-muted-foreground">Assigned to</span>
-              <span className="mt-0.5 block truncate font-semibold text-foreground">
-                {incident.assignee?.name || 'Unassigned'}
+              <span className="mt-0.5 flex min-w-0 items-center gap-1.5 font-semibold text-foreground">
+                {incident.assignee && (
+                  <UserAvatar
+                    userId={incident.assignee.id}
+                    avatarUrl={incident.assignee.avatarUrl}
+                    name={incident.assignee.name}
+                    gender={incident.assignee.gender}
+                    size="xs"
+                    aria-hidden
+                  />
+                )}
+                <span className="truncate">{incident.assignee?.name || 'Unassigned'}</span>
               </span>
             </div>
           </div>
@@ -521,13 +571,13 @@ export default async function IncidentDetailScreen({
           <div className={`h-1 w-full bg-gradient-to-r ${statusGradient}`} />
           <div className="p-3.5 sm:p-4.5">
             <div className="mb-2.5 flex min-w-0 items-center justify-between gap-3">
-              <Link
+              <ListReturnLink
                 href={backHref}
                 className="inline-flex h-7 items-center gap-1.5 rounded-lg px-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
                 <span>{backLabel}</span>
-              </Link>
+              </ListReturnLink>
               <div className="flex min-w-0 items-center gap-1.5">
                 <Badge
                   variant="outline"
@@ -564,11 +614,7 @@ export default async function IncidentDetailScreen({
                   <h1 className="min-w-0 break-words text-base font-bold leading-snug tracking-tight text-foreground sm:text-xl">
                     {incident.title}
                   </h1>
-                  <Badge
-                    className={`shrink-0 border-0 bg-gradient-to-r text-[11px] font-bold text-white shadow-2xs ${statusGradient}`}
-                  >
-                    {incident.status}
-                  </Badge>
+                  <StatusBadge status={incident.status} live={incident.status === 'OPEN'} />
                 </div>
                 {showIntelligence && (
                   <Suspense fallback={null}>
@@ -650,6 +696,13 @@ export default async function IncidentDetailScreen({
           color: tagLink.tag.color,
         }))}
         jiraCapability={incidentJiraCapability}
+        statusUpdate={
+          statusUpdate && {
+            href: `/settings/status-pages/${statusUpdate.statusPageId}?announce=${encodeURIComponent(id)}`,
+            statusPageName: statusUpdate.statusPageName,
+            nextDueAt: statusUpdate.nextDueAt?.toISOString() ?? null,
+          }
+        }
       />
 
       {/* Intelligence: one row of chips, and the inspector they open. Silent when there is nothing to say. */}

@@ -375,6 +375,7 @@ enum IncidentEventType {
   RUNBOOK_SKIPPED
   RUNBOOK_VERIFIED
   RUNBOOK_UNVERIFIED
+  CHAT_MESSAGE
 }
 
 enum ActionItemStatus {
@@ -493,6 +494,8 @@ model UserEmailReservation {
 }
 
 model User {
+  // True only after an approved group role mapping has adopted this account.
+  scimRoleMappingAdopted Boolean @default(false)
   scimGivenName String?
   scimFamilyName String?
   scimIdentities ScimIdentity[]
@@ -568,6 +571,7 @@ model User {
   intelligencePolicyVersions  IntelligencePolicyVersion[]
   intelligenceEvaluationRuns  IntelligenceEvaluationRun[]
   squireConversations         SquireConversation[]
+  squireDialogueStates        SquireDialogueState[]
   aiUsageDays                 AiUsageUserDay[]
   squireActionReceipts        SquireActionReceipt[]
   squireFeedback              SquireFeedback[]
@@ -598,6 +602,8 @@ model User {
   avatar                      UserAvatar?
   dashboards                  Dashboard[]
   savedReports                SavedReport[]
+  analyticsViews              AnalyticsView[]
+  analyticsDigest             AnalyticsDigestSubscription?
   reportExports               ReportExport[]
   auditExports                AuditExport[]
   assignedActionItems         ActionItem[]
@@ -667,6 +673,7 @@ model Team {
   incidents         Incident[]
   dashboards        Dashboard[]
   savedReports      SavedReport[]
+  analyticsViews    AnalyticsView[]
   runbooks          Runbook[]          @relation("RunbookOwnerTeam")
   teamLeadId        String?
   teamLead          User?              @relation("TeamLead", fields: [teamLeadId], references: [id], onDelete: SetNull)
@@ -760,7 +767,8 @@ model Service {
   upstreamDependencies            ServiceDependency[]             @relation("DependencyDownstream")
   downstreamDependencies          ServiceDependency[]             @relation("DependencyUpstream")
   changeEvents                    ChangeEvent[]
-  maintenanceWindows              MaintenanceWindowService[]
+  catalogAliases                  CatalogServiceAlias[]
+  maintenanceWindows             MaintenanceWindowService[]
   maintenanceSchedules            MaintenanceScheduleService[]
 
   @@index([teamId])
@@ -871,6 +879,8 @@ model Integration {
   /// True only for integrations that existed before routing keys were shown in plaintext: /api/events
   /// then also accepts the exact stored (encrypted) key value the old UI displayed. Cleared on rotation.
   legacyStoredKeyAccepted Boolean @default(false)
+  changeServiceMapping   ChangeServiceMapping?
+  unmappedChanges        ChangeEvent[] @relation("ChangeEventUnmappedIntegration")
 }
 
 // No cascading foreign keys: deleting a service must never discard accepted work.
@@ -1511,6 +1521,9 @@ model Incident {
   warRoomProvisioningStatus           WarRoomProvisioningStatus       @default(NONE)
   warRoomProvisioningToken            String?
   warRoomProvisioningAt               DateTime?
+  /// Written by the intelligence lane when findings change (see intelligence/helpers/page-context.ts); read by
+  /// page notifications from the incident row they already load. Ids and scores only, never text.
+  pageContext                         Json?
   createdAt                           DateTime                        @default(now())
   updatedAt                           DateTime                        @updatedAt
   service                             Service                         @relation(fields: [serviceId], references: [id], onDelete: Restrict)
@@ -2663,6 +2676,8 @@ model StatusPage {
   enableUptimeExports         Boolean                    @default(false)
   statusApiRequireToken       Boolean                    @default(false)
   statusApiRateLimitEnabled   Boolean                    @default(false)
+  /// Minutes between status updates while an incident is open (incident page "next update due"). Null = 30.
+  updateCadenceMinutes        Int?
   statusApiRateLimitMax       Int                        @default(120)
   statusApiRateLimitWindowSec Int                        @default(60)
   uptimeExcellentThreshold    Float                      @default(99.9)
@@ -2740,6 +2755,7 @@ model StatusPageService {
 
   @@unique([statusPageId, serviceId])
   @@index([statusPageId, order])
+  @@index([serviceId])
 }
 
 model StatusPageAnnouncement {
@@ -3273,6 +3289,39 @@ model SavedReport {
 
   @@index([userId, createdAt, id])
   @@index([teamId, createdAt, id])
+}
+
+/// A saved filter set on /analytics. `query` is the canonical string from
+/// toAnalyticsSearchParams and is re-validated through parseAnalyticsParams on load.
+model AnalyticsView {
+  id          String              @id @default(cuid())
+  name        String
+  query       String
+  visibility  DashboardVisibility @default(PRIVATE)
+  userId      String
+  teamId      String?
+  isDefault   Boolean             @default(false)
+  emailWeekly Boolean             @default(false)
+  lastSentAt  DateTime?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team        Team?               @relation(fields: [teamId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt, id])
+  @@index([teamId, createdAt, id])
+  @@index([emailWeekly, lastSentAt])
+}
+
+/// Default weekly analytics summary (sent to everyone with analytics access, PagerDuty-style).
+/// One row per user, created on first send. token backs the RFC 8058 one-click unsubscribe.
+model AnalyticsDigestSubscription {
+  userId     String    @id
+  optedOut   Boolean   @default(false)
+  token      String    @unique
+  lastSentAt DateTime?
+  updatedAt  DateTime  @updatedAt
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model ReportExport {
@@ -4939,6 +4988,7 @@ model ScimGroup {
   updatedAt      DateTime               @updatedAt
   memberships    ScimGroupMembership[]
   bindings       ScimGroupTeamBinding[]
+  systemRole     Role? // Explicit administrator-approved system role mapping.
 
   @@unique([connectorId, scimExternalId])
   @@index([connectorId, name, id])
@@ -5184,6 +5234,7 @@ model IntelligenceSettings {
   opsInsightsPostmortemsEnabled   Boolean  @default(false)
   opsInsightsRunbooksEnabled      Boolean  @default(false)
   opsInsightsNotificationsEnabled Boolean  @default(false)
+  opsInsightsIntelligenceEnabled  Boolean  @default(false)
   /// A run fixed its incident when the incident resolved within this many minutes after the run finished.
   runbookFixWindowMinutes     Int      @default(120)
   /// Small deterministic helpers (create-form suggestions, status-update drafts, knowledge search in the
@@ -5192,6 +5243,14 @@ model IntelligenceSettings {
   /// Intelligence fields (inMaintenance, recentRiskyChange, sloBurning, flapping, stormActive) as
   /// automation rule conditions, read from the 30 s pre-paging snapshot. Default off.
   automationIntelligenceFieldsEnabled Boolean @default(false)
+  /// Top similar incident, likely change and best runbook in page notifications, precomputed by the lane. Default off.
+  pageContextEnabled          Boolean  @default(false)
+  /// People suggestions: cover candidates on overrides, experts on incidents, personal noise and load cards.
+  peopleInsightsEnabled       Boolean  @default(false)
+  /// Post one deterministic kickoff message (similar incidents, likely causes, runbooks) when a war room opens.
+  warRoomKickoffEnabled       Boolean  @default(false)
+  /// Save war-room channel messages to the incident timeline (bounded, secrets redacted). Default off.
+  warRoomCaptureEnabled       Boolean  @default(false)
   revision                    Int      @default(1)
   updatedBy                   String?
   createdAt                   DateTime @default(now())
@@ -5800,11 +5859,39 @@ model ChangeEvent {
   riskScore      Float?
   riskEvidence   Json?
   riskComputedAt DateTime?
+  /// Set when a multi-service integration sent the change but no app/component label resolved to a service.
+  /// Such a change has no service yet, but unlike a global change (both null) it affects no service.
+  unmappedIntegrationId String?
+  unmappedIntegration   Integration? @relation("ChangeEventUnmappedIntegration", fields: [unmappedIntegrationId], references: [id], onDelete: Cascade)
 
   @@unique([source, dedupKey], map: "uq_change_event_source_dedup")
   @@index([serviceId, occurredAt(sort: Desc)], map: "idx_change_event_service_recent")
   @@index([occurredAt], map: "idx_change_event_retention")
   @@index([source, occurredAt], map: "idx_change_event_source_recent")
+  @@index([unmappedIntegrationId, occurredAt(sort: Desc)], map: "idx_change_event_unmapped_recent")
+}
+
+/// Per change integration: app/component label value -> service, for one webhook that carries changes of many
+/// services. Its presence makes the integration multi-service. `version` increases on every edit.
+model ChangeServiceMapping {
+  integrationId String      @id
+  integration   Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  /// { "<lower-cased label value>": "<serviceId>" }
+  mappings      Json        @default("{}")
+  version       Int         @default(1)
+  updatedById   String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+/// Backstage catalog entity name (lower-cased metadata.name) -> the service it resolved to on the last import.
+model CatalogServiceAlias {
+  name      String   @id
+  serviceId String
+  service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  updatedAt DateTime @updatedAt
+
+  @@index([serviceId])
 }
 
 // A declared-topology source (a Backstage catalog export) pulled on a schedule into DECLARED dependencies.
@@ -6020,6 +6107,7 @@ enum ObservabilityConnectionKind {
   SENTRY
   GITHUB
   GITLAB
+  KUBERNETES
 }
 
 // A read-only connection Squire may query during an AI turn. Credentials are encrypted at rest and never
@@ -6239,6 +6327,22 @@ model SquireConversation {
 
   @@index([userId, updatedAt(sort: Desc)], map: "idx_squire_conversation_owner_recent")
   @@index([updatedAt], map: "idx_squire_conversation_retention")
+}
+
+// Basic-mode dialogue state when there is no saved conversation (history off), shared by every replica.
+// One row per person and incident context ('' for none); encrypted; short-lived and swept on write.
+model SquireDialogueState {
+  // Surrogate key so key-rotation migration can page through encrypted rows like every other target.
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scopeKey       String
+  stateEncrypted String
+  expiresAt      DateTime
+  updatedAt      DateTime @updatedAt
+
+  @@unique([userId, scopeKey])
+  @@index([expiresAt], map: "idx_squire_dialogue_state_expiry")
 }
 
 model SquireMessage {
@@ -6947,4 +7051,24 @@ model MaintenanceScheduleService {
 
   @@id([scheduleId, serviceId])
   @@index([serviceId])
+}
+
+// A Squire investigation started over MCP and polled until done. Only the person who started it, on
+// the same connection, can read it; it is unreadable after expiresAt and purged by MCP maintenance.
+model SquireMcpInvestigation {
+  // Unpredictable server-generated id.
+  id               String   @id
+  actorId          String
+  grantId          String
+  // RUNNING, COMPLETED or FAILED.
+  status           String   @default("RUNNING")
+  // Encrypted JSON { progress, result }: the steps seen so far and, once done, the answer for MCP.
+  payloadEncrypted String?
+  error            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  expiresAt        DateTime
+
+  @@index([actorId, status, createdAt])
+  @@index([expiresAt])
 }
