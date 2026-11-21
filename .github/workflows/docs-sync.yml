@@ -23,7 +23,7 @@ jobs:
       - name: Checkout website repo
         uses: actions/checkout@v7
         with:
-          repository: opsknight-labs/OpsKnight-website
+          repository: OpsKnightLabs/OpsKnight-website
           path: opsknight-website
           # Public clone. Passing an empty or invalid PAT here fails the job
           # even when the website repo is public.
@@ -44,9 +44,9 @@ jobs:
             exit 0
           fi
           if [ -z "$OPSKNIGHT_WEBSITE_PAT" ]; then
-            echo "::error::Docs differ from the website, but secret OPSKNIGHT_WEBSITE_PAT is missing. Add a fine-grained PAT with Contents: Read and write on opsknight-labs/OpsKnight-website as an Actions secret on OpsKnight or the opsknight-labs org."
+            echo "::error::Docs differ from the website, but secret OPSKNIGHT_WEBSITE_PAT is missing. Add a fine-grained PAT with Contents: Read and write on OpsKnightLabs/OpsKnight-website as an Actions secret on OpsKnight or the opsknight-labs org."
             exit 1
           fi
           git add -A
           git commit -m "sync docs from app repo"
-          git push "https://x-access-token:${OPSKNIGHT_WEBSITE_PAT}@github.com/opsknight-labs/OpsKnight-website.git" HEAD:main
+          git push "https://x-access-token:${OPSKNIGHT_WEBSITE_PAT}@github.com/OpsKnightLabs/OpsKnight-website.git" HEAD:main

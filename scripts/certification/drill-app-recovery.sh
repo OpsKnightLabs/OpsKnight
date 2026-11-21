@@ -88,7 +88,7 @@ docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c "
 echo "4. Starting OpsKnight Web and Background Worker roles against restored database..."
 APP_START=$(date +%s)
 # Use the compatible immutable image
-RECOVERY_IMAGE="ghcr.io/opsknight-labs/opsknight:2.0.0"
+RECOVERY_IMAGE="ghcr.io/opsknightlabs/opsknight:2.0.0"
 
 docker run -d --name "$APP_CONTAINER" --network "$NETWORK_NAME" \
   -p "127.0.0.1:$APP_PORT:3000" \

@@ -207,7 +207,7 @@ it('generates canonical Docker installation and upgrade commands matching agent 
   const { agentSetupCommands } = await import('@/lib/runbooks/agent-setup-commands');
   const commands = agentSetupCommands({
     agentId: 'cmv90000000000000000000001',
-    image: 'ghcr.io/opsknight-labs/opsknight-agent:v2.0.0',
+    image: 'ghcr.io/opsknightlabs/opsknight-agent:v2.0.0',
     url: 'https://ops.example.com',
     policyPath: 'agent/policy.container.json',
     executionPublicKey: 'public-pin',
@@ -231,7 +231,7 @@ it('generates canonical Docker installation and upgrade commands matching agent 
 
   const upgradeCommands = agentSetupCommands({
     agentId: 'cmv90000000000000000000001',
-    image: 'ghcr.io/opsknight-labs/opsknight-agent:v2.0.0',
+    image: 'ghcr.io/opsknightlabs/opsknight-agent:v2.0.0',
     url: 'https://ops.example.com',
     policyPath: 'agent/policy.container.json',
     executionPublicKey: 'public-pin',
@@ -252,7 +252,7 @@ it('generates canonical Podman installation and upgrade commands matching rootle
   const { agentSetupCommands } = await import('@/lib/runbooks/agent-setup-commands');
   const commands = agentSetupCommands({
     agentId: 'cmv90000000000000000000001',
-    image: 'ghcr.io/opsknight-labs/opsknight-agent:v2.0.0',
+    image: 'ghcr.io/opsknightlabs/opsknight-agent:v2.0.0',
     url: 'https://ops.example.com',
     policyPath: 'agent/policy.container.json',
     executionPublicKey: 'public-pin',
@@ -275,7 +275,7 @@ it('generates canonical Podman installation and upgrade commands matching rootle
 
   const upgradeCommands = agentSetupCommands({
     agentId: 'cmv90000000000000000000001',
-    image: 'ghcr.io/opsknight-labs/opsknight-agent:v2.0.0',
+    image: 'ghcr.io/opsknightlabs/opsknight-agent:v2.0.0',
     url: 'https://ops.example.com',
     policyPath: 'agent/policy.container.json',
     executionPublicKey: 'public-pin',
@@ -294,7 +294,7 @@ it('enforces hardened container security isolation profile across Docker and Pod
   const { agentSetupCommands } = await import('@/lib/runbooks/agent-setup-commands');
   const commands = agentSetupCommands({
     agentId: 'cmv90000000000000000000001',
-    image: 'ghcr.io/opsknight-labs/opsknight-agent:v2.0.0',
+    image: 'ghcr.io/opsknightlabs/opsknight-agent:v2.0.0',
     url: 'https://ops.example.com',
     policyPath: 'path with spaces/policy.json',
     executionPublicKey: 'public-pin',
@@ -320,7 +320,7 @@ it('rejects policyPath containing dangerous control characters or null bytes', a
   expect(() =>
     agentSetupCommands({
       agentId: 'cmv90000000000000000000001',
-      image: 'ghcr.io/opsknight-labs/opsknight-agent:v2.0.0',
+      image: 'ghcr.io/opsknightlabs/opsknight-agent:v2.0.0',
       url: 'https://ops.example.com',
       policyPath: 'policy\0bad.json',
       executionPublicKey: 'public-pin',
@@ -330,7 +330,7 @@ it('rejects policyPath containing dangerous control characters or null bytes', a
   expect(() =>
     agentSetupCommands({
       agentId: 'cmv90000000000000000000001',
-      image: 'ghcr.io/opsknight-labs/opsknight-agent:v2.0.0',
+      image: 'ghcr.io/opsknightlabs/opsknight-agent:v2.0.0',
       url: 'https://ops.example.com',
       policyPath: 'policy\nbad.json',
       executionPublicKey: 'public-pin',

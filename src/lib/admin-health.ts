@@ -210,7 +210,7 @@ function safeErrorKind(error: unknown): string {
 async function latestRelease(): Promise<string | null> {
   try {
     const response = await fetch(
-      'https://api.github.com/repos/opsknight-labs/OpsKnight/releases/latest',
+      'https://api.github.com/repos/OpsKnightLabs/OpsKnight/releases/latest',
       {
         headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'OpsKnight-Health-Center' },
         signal: AbortSignal.timeout(3000),

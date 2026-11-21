@@ -119,7 +119,7 @@ export default function AgentSetupInstructions({
     return () => window.clearInterval(timer);
   }, [expiresAt]);
   const [image, setImage] = useState(
-    distribution?.manifest.image.reference ?? 'ghcr.io/opsknight-labs/opsknight-agent:latest'
+    distribution?.manifest.image.reference ?? 'ghcr.io/opsknightlabs/opsknight-agent:latest'
   );
   const [url, setUrl] = useState(appUrl && !validateAgentEndpoint(appUrl) ? appUrl : '');
   const [endpointConfirmed, setEndpointConfirmed] = useState(false);

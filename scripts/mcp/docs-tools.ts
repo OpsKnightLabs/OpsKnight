@@ -10,6 +10,7 @@ import { CostBudget } from '../../src/lib/mcp/core/budget';
 import { supportedMcpScopes } from '../../src/lib/mcp/auth/scopes';
 import { MCP_CATALOG, isMcpApprovalGated } from '../../src/lib/mcp/catalog';
 import { MCP_CAPABILITIES } from '../../src/lib/mcp/catalog/capabilities';
+import { ASK_SQUIRE_SCOPES } from '../../src/lib/mcp/core/ask-squire-contract';
 import type { AuthorizationActor } from '../../src/lib/authorization-policy';
 
 export const MCP_TOOLS_PAGE = 'docs/v2.2.0/reference/mcp/tools.md';
@@ -54,7 +55,10 @@ async function list<T>(method: 'tools/list' | 'prompts/list', writes: boolean, s
         actor,
         writes,
         sensitive,
-        []
+        [],
+        false,
+        // Opt-in tools are documented too; their descriptions say what turns them on.
+        { squire: true }
       ),
     { legacy: 'stateless', responseMode: 'json', maxSubscriptions: 0 }
   );
@@ -101,6 +105,12 @@ function typeOf(schema: JsonSchema): string {
 }
 
 const hint = (value: boolean | undefined) => (value === undefined ? '—' : value ? 'yes' : 'no');
+/** Tools listed only while Squire for MCP is on; they need every ASK_SQUIRE_SCOPES scope. */
+const SQUIRE_TOOLS = new Set([
+  'ask_squire',
+  'squire_start_investigation',
+  'squire_get_investigation',
+]);
 
 /** `verifiedAt` is the date the hand-written docs were last checked (MCP_DOCS_VERIFIED_AT). */
 export async function renderTools(verifiedAt: string) {
@@ -161,7 +171,13 @@ export async function renderTools(verifiedAt: string) {
         (operation && isMcpApprovalGated(operation)) || capability.get(tool.name)?.approval
           ? 'Approval'
           : null,
+        SQUIRE_TOOLS.has(tool.name) ? 'Squire for MCP (AI settings)' : null,
       ].filter(Boolean);
+      const scopes: readonly string[] = operation?.requiredScopes.length
+        ? operation.requiredScopes
+        : SQUIRE_TOOLS.has(tool.name)
+          ? ASK_SQUIRE_SCOPES
+          : [];
       lines.push(
         `### \`${tool.name}\``,
         '',
@@ -169,8 +185,8 @@ export async function renderTools(verifiedAt: string) {
         `| Read only | Destructive | Idempotent | Scopes | Requires |`,
         '| --- | --- | --- | --- | --- |',
         `| ${hint(tool.annotations?.readOnlyHint)} | ${hint(tool.annotations?.destructiveHint)} | ${hint(tool.annotations?.idempotentHint)} | ${
-          operation?.requiredScopes.length
-            ? operation.requiredScopes.map(scope => `\`${scope}\``).join(', ')
+          scopes.length
+            ? scopes.map(scope => `\`${scope}\``).join(', ')
             : 'none of its own (an operation it reads or runs needs its scopes)'
         } | ${needs.join(', ') || '—'} |`,
         ''

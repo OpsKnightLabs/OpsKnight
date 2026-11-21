@@ -1,12 +1,12 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.opsknight-labs/opsknight",
+  "name": "io.github.OpsKnightLabs/opsknight",
   "title": "OpsKnight",
   "description": "Self-hosted incident management: incidents, on-call, services, runbooks, reviewed changes.",
   "version": "2.2.0",
   "websiteUrl": "https://opsknight.com/docs",
   "repository": {
-    "url": "https://github.com/opsknight-labs/opsknight",
+    "url": "https://github.com/OpsKnightLabs/opsknight",
     "source": "github"
   },
   "remotes": [

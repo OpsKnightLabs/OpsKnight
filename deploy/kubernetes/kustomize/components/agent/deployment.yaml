@@ -23,7 +23,7 @@ spec:
         seccompProfile: { type: RuntimeDefault }
       containers:
         - name: agent
-          image: ghcr.io/opsknight-labs/opsknight-agent:REQUIRES_VERIFIED_RELEASE
+          image: ghcr.io/opsknightlabs/opsknight-agent:REQUIRES_VERIFIED_RELEASE
           imagePullPolicy: IfNotPresent
           startupProbe:
             exec:

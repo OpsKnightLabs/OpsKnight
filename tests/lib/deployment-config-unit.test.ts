@@ -30,7 +30,7 @@ describe('deployment configuration invariants', () => {
     expect(chart).toContain(`version: ${pkg.version}`);
     expect(chart).toMatch(new RegExp(`appVersion: '${pkg.version}(?:-hotfix)?'`));
     expect(rawDeployment).toMatch(
-      new RegExp(`ghcr.io/opsknight-labs/opsknight:${pkg.version}(?:-hotfix)?`)
+      new RegExp(`ghcr.io/opsknightlabs/opsknight:${pkg.version}(?:-hotfix)?`)
     );
   });
 
@@ -171,7 +171,8 @@ describe('deployment configuration invariants', () => {
     );
     expect(integrated).toContain('name: OPSKNIGHT_SKIP_MIGRATIONS');
     expect(integrated).toMatch(/value:\s*['"]true['"]/);
-    expect(split.match(/name: OPSKNIGHT_SKIP_MIGRATIONS/g)).toHaveLength(7);
+    // Eight runtime lanes: web, scheduler, intelligence, general, critical, bulk, runbook, projector.
+    expect(split.match(/name: OPSKNIGHT_SKIP_MIGRATIONS/g)).toHaveLength(8);
     expect(migration).toContain('kind: Job');
     expect(migration).toContain('name: OPSKNIGHT_MIGRATION_ONLY');
     expect(migration).toContain('key: DIRECT_DATABASE_URL');
@@ -416,6 +417,7 @@ describe('deployment configuration invariants', () => {
     for (const role of [
       'web',
       'scheduler',
+      'intelligence-worker',
       'general-worker',
       'critical-worker',
       'bulk-worker',
@@ -423,6 +425,15 @@ describe('deployment configuration invariants', () => {
     ]) {
       expect(helmDeployments).toContain(`"${role}"`);
       expect(rawDeployments).toContain(`opsknight-${role}`);
+    }
+    // The lane never shares a paging process in a split topology: every shared role opts out.
+    for (const file of [
+      rawDeployments,
+      read('deploy/swarm/docker-stack.yml'),
+      read('deploy/compose/docker-compose.split.yml'),
+    ]) {
+      expect(file).toContain('OPSKNIGHT_INTELLIGENCE_DEDICATED');
+      expect(file).toContain('intelligence-worker');
     }
     expect(values).toContain('profile: maintenance');
     expect(rawDeployments).toContain('OPSKNIGHT_SCHEDULER_PROFILE, value: maintenance');
@@ -802,7 +813,7 @@ describe('deployment configuration invariants', () => {
       'docs/v1.3/deployment/helm.md',
     ];
     const content = files.map(read).join('\n');
-    expect(content).not.toMatch(/ghcr\.io\/opsknight-labs\/OpsKnight/);
+    expect(content).not.toMatch(/ghcr\.io\/opsknightlabs\/OpsKnight/);
     expect(content).not.toMatch(/(?:^|\s)opsknight\/opsknight:/);
   });
 
@@ -898,10 +909,10 @@ describe('deployment configuration invariants', () => {
       'deploy/kubernetes/kustomize/profiles/split-pgbouncer/web-database-patch.yaml'
     );
     expect(webPatch).toContain(
-      'image: ghcr.io/opsknight-labs/opsknight:split-runtime-image-required'
+      'image: ghcr.io/opsknightlabs/opsknight:split-runtime-image-required'
     );
     expect(splitDeployments).toContain(
-      'image: ghcr.io/opsknight-labs/opsknight:split-runtime-image-required'
+      'image: ghcr.io/opsknightlabs/opsknight:split-runtime-image-required'
     );
     expect(webPatch).toContain('runAsUser: 1001');
     expect(webPatch).toContain('readOnlyRootFilesystem: true');
@@ -984,6 +995,15 @@ describe('deployment configuration invariants', () => {
     expect(defaultSplit.totalDemand).toBe(35);
     expect(defaultSplit.headroom).toBe(45);
     expect(defaultSplit.mcpConnections).toBe(2);
+
+    // A dedicated intelligence worker is off by default and, when deployed, counts against the budget.
+    const withIntelligence = calculateRuntimeCapacity({
+      OPSKNIGHT_RUNTIME_MODE: 'split',
+      INTELLIGENCE_WORKER_REPLICAS: '2',
+      DATABASE_POOL_SIZE_INTELLIGENCE_WORKER: '4',
+    });
+    // Each lane also reserves one direct PostgreSQL LISTEN session.
+    expect(withIntelligence.totalDemand).toBe(defaultSplit.totalDemand + 10);
 
     // Integrated mode accounts for webReplicas * webPool
     const singleIntegrated = calculateRuntimeCapacity({ OPSKNIGHT_RUNTIME_MODE: 'integrated' });

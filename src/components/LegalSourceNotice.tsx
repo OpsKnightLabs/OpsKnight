@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-const UPSTREAM_REPOSITORY = 'https://github.com/opsknight-labs/OpsKnight';
+const UPSTREAM_REPOSITORY = 'https://github.com/OpsKnightLabs/OpsKnight';
 const AGPL_LICENSE_URL = 'https://www.gnu.org/licenses/agpl-3.0.html';
 
 function safeSourceUrl(value: string | undefined): string {

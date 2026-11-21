@@ -19,7 +19,7 @@ export function agentKustomization(agentId: string, url: string, image: string) 
     resources: ['deployment.yaml', 'policy.yaml', 'service-account.yaml', 'pvc.yaml'],
     images: [
       {
-        name: 'ghcr.io/opsknight-labs/opsknight-agent',
+        name: 'ghcr.io/opsknightlabs/opsknight-agent',
         newName: digestAt > 0 ? image.slice(0, digestAt) : tagged ? image.slice(0, tagAt) : image,
         ...(digestAt > 0
           ? { digest: image.slice(digestAt + 1) }

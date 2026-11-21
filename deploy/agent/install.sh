@@ -16,7 +16,7 @@ ALLOW_INSECURE_HTTP=false
 RELEASE_TAG="${OPSKNIGHT_VERSION:-2.2.0}"
 CLEAN_VERSION="${RELEASE_TAG#v}"
 CLEAN_TAG="v${CLEAN_VERSION}"
-BASE_DOWNLOAD_URL="${OPSKNIGHT_DOWNLOAD_BASE:-https://github.com/opsknight-labs/OpsKnight/releases/download/${CLEAN_TAG}}"
+BASE_DOWNLOAD_URL="${OPSKNIGHT_DOWNLOAD_BASE:-https://github.com/OpsKnightLabs/OpsKnight/releases/download/${CLEAN_TAG}}"
 NO_RESTART=false
 
 INSTALL_PREFIX="/opt/opsknight-agent"
@@ -82,7 +82,7 @@ while [[ $# -gt 0 ]]; do
       RELEASE_TAG="$2"
       CLEAN_VERSION="${RELEASE_TAG#v}"
       CLEAN_TAG="v${CLEAN_VERSION}"
-      BASE_DOWNLOAD_URL="${OPSKNIGHT_DOWNLOAD_BASE:-https://github.com/opsknight-labs/OpsKnight/releases/download/${CLEAN_TAG}}"
+      BASE_DOWNLOAD_URL="${OPSKNIGHT_DOWNLOAD_BASE:-https://github.com/OpsKnightLabs/OpsKnight/releases/download/${CLEAN_TAG}}"
       shift 2
       ;;
     --no-restart)

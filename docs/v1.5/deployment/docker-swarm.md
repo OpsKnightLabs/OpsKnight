@@ -118,7 +118,7 @@ In production (`ENVIRONMENT=production`, default), `deploy.sh` enforces `STRICT_
 
 ### 1. Core Split Stack (Bundled PostgreSQL)
 ```bash
-export OPSKNIGHT_IMAGE="ghcr.io/opsknight-labs/opsknight@sha256:<tested-manifest-digest>"
+export OPSKNIGHT_IMAGE="ghcr.io/opsknightlabs/opsknight@sha256:<tested-manifest-digest>"
 export NEXTAUTH_SECRET="$(openssl rand -base64 32)"
 export ENCRYPTION_KEY="$(openssl rand -hex 32)"
 export POSTGRES_PASSWORD="your_secure_db_password"
@@ -128,7 +128,7 @@ export POSTGRES_PASSWORD="your_secure_db_password"
 
 ### 2. Core Split Stack + High-Availability PgBouncer
 ```bash
-export OPSKNIGHT_IMAGE="ghcr.io/opsknight-labs/opsknight@sha256:<tested-manifest-digest>"
+export OPSKNIGHT_IMAGE="ghcr.io/opsknightlabs/opsknight@sha256:<tested-manifest-digest>"
 PGBOUNCER_ENABLED=true ./deploy/swarm/scripts/deploy.sh
 ```
 
@@ -179,7 +179,7 @@ docker stack ps opsknight --no-trunc
 ```bash
 # Rolling update of web service with automatic rollback on failure
 docker service update \
-  --image ghcr.io/opsknight-labs/opsknight:1.5.0 \
+  --image ghcr.io/opsknightlabs/opsknight:1.5.0 \
   --update-parallelism 1 \
   --update-delay 10s \
   --update-failure-action rollback \

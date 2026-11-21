@@ -97,7 +97,7 @@ it('allows only the verified digest after endpoint confirmation and disables cop
   vi.setSystemTime(new Date('2026-10-14T12:00:00Z'));
   const distribution: AgentDistribution = {
     checkedAt: new Date().toISOString(),
-    installerUrl: 'https://github.com/opsknight-labs/OpsKnight/releases/download/v2.1.0/install.sh',
+    installerUrl: 'https://github.com/OpsKnightLabs/OpsKnight/releases/download/v2.1.0/install.sh',
     manifest: {
       schemaVersion: 1,
       version: '2.1.0',
@@ -106,7 +106,7 @@ it('allows only the verified digest after endpoint confirmation and disables cop
       policySchemaVersion: 1,
       server: { minimum: '2.1.0', maximumExclusive: '2.1.1' },
       image: {
-        reference: `ghcr.io/opsknight-labs/opsknight-agent@sha256:${'b'.repeat(64)}`,
+        reference: `ghcr.io/opsknightlabs/opsknight-agent@sha256:${'b'.repeat(64)}`,
         architectures: ['linux/amd64', 'linux/arm64'],
       },
       installer: { filename: 'install.sh', sha256: 'c'.repeat(64) },

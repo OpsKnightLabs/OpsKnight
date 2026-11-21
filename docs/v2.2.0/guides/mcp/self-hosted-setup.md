@@ -313,7 +313,7 @@ Follow OpenAI's Secure MCP Tunnel documentation, linked from its [custom MCP ser
 **Test connection** on the Overview tab runs the checks from the server. To check from outside, for example from a laptop on the public internet, download the doctor published with your release (Node.js 20; replace `2.2.0` with your version) and run it. No checkout is needed:
 
 ```sh
-curl -fsSLo opsknight-mcp-doctor.cjs https://raw.githubusercontent.com/opsknight-labs/OpsKnight/v2.2.0/scripts/mcp/doctor.cjs && node opsknight-mcp-doctor.cjs 'https://ops.your-company.com/mcp'
+curl -fsSLo opsknight-mcp-doctor.cjs https://raw.githubusercontent.com/OpsKnightLabs/OpsKnight/v2.2.0/scripts/mcp/doctor.cjs && node opsknight-mcp-doctor.cjs 'https://ops.your-company.com/mcp'
 ```
 
 The doctor is not served by OpsKnight itself: a misrouted or unhealthy instance is exactly what it diagnoses. From an OpsKnight source checkout:

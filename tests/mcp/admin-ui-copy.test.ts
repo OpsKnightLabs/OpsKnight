@@ -65,7 +65,7 @@ describe('D6 setup commands', () => {
     const quoted = `'https://ops.example.com/mcp?x='\\''y'\\'''`;
     // DX-9: downloaded for the running release (never from the instance it diagnoses).
     expect(commands.doctor).toBe(
-      `curl -fsSLo opsknight-mcp-doctor.cjs https://raw.githubusercontent.com/opsknight-labs/OpsKnight/v2.2.0/scripts/mcp/doctor.cjs && node opsknight-mcp-doctor.cjs ${quoted}`
+      `curl -fsSLo opsknight-mcp-doctor.cjs https://raw.githubusercontent.com/OpsKnightLabs/OpsKnight/v2.2.0/scripts/mcp/doctor.cjs && node opsknight-mcp-doctor.cjs ${quoted}`
     );
     expect(mcpSetupCommands(endpoint, 'v2.3.1').doctor).toContain('/OpsKnight/v2.3.1/');
     expect(commands.doctorSource).toBe(`node scripts/mcp/doctor.cjs ${quoted}`);

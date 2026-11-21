@@ -19,11 +19,11 @@ const goodEvidence = () => ({
   sourceRevision: revision,
   imageDigest: 'sha256:' + 'b'.repeat(64),
   imageSourceRevision: revision,
-  imageProvenanceUrl: 'https://github.com/opsknight-labs/OpsKnight/actions/runs/123',
+  imageProvenanceUrl: 'https://github.com/OpsKnightLabs/OpsKnight/actions/runs/123',
   review: {
     reviewedBy: 'maintainer',
     reviewedAt: '2026-10-28T11:00:00.000Z',
-    referenceUrl: 'https://github.com/opsknight-labs/OpsKnight/pull/924',
+    referenceUrl: 'https://github.com/OpsKnightLabs/OpsKnight/pull/924',
   },
   gates: Object.fromEntries(
     REQUIRED_GATES.map(gate => [

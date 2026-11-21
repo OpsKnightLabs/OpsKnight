@@ -34,4 +34,4 @@ No delivery date is committed.
 - [ ] Alert correlation and assisted incident learning (AIOps)
 - [ ] Organisation-wide workflow builder — configurable triggers (incident declared, severity changed, SLA breached, postmortem published) running chains of steps across Slack, Jira, paging and status pages
 
-Have a suggestion? [Open a feature request](https://github.com/opsknight-labs/OpsKnight/issues/new?template=feature_request.yml).
+Have a suggestion? [Open a feature request](https://github.com/OpsKnightLabs/OpsKnight/issues/new?template=feature_request.yml).
